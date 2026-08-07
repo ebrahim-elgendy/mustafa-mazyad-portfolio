@@ -1,0 +1,143 @@
+@import "tailwindcss";
+
+:root {
+  /* Surfaces — near-black stage; the work provides the color, not the chrome */
+  --bg: oklch(0.07 0 0);
+  --surface: oklch(0.13 0.006 145);
+  --surface-2: oklch(0.17 0.008 145);
+  --border: oklch(0.24 0.006 145);
+  --border-strong: oklch(0.34 0.008 145);
+
+  /* Text */
+  --ink: oklch(0.95 0 0);
+  --muted: oklch(0.60 0.006 145);
+
+  /* Brand — cinematic teal/emerald against a burnt-amber accent (film-grade pairing) */
+  --primary: oklch(0.50 0.10 145);
+  --primary-hover: oklch(0.58 0.11 145);
+  --primary-ink: oklch(0.98 0 0);
+  --accent: oklch(0.62 0.15 45);
+  --accent-hover: oklch(0.68 0.16 45);
+  --accent-ink: oklch(0.98 0 0);
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+
+  /* z-scale */
+  --z-nav: 40;
+  --z-overlay: 50;
+  --z-modal: 60;
+  --z-toast: 70;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-ink: var(--primary-ink);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-ink: var(--accent-ink);
+
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--primary);
+  color: var(--primary-ink);
+}
+
+/* Custom scrollbar — thin, dark, matches the stage */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 999px;
+}
+
+/*
+  Cinematic grade — applied to every placeholder image so a set of
+  unrelated stock photos reads as one consistent, color-graded body of
+  work rather than a stock grid. Swap for real photography without
+  needing to remove this: it still reads as "graded", not "filtered".
+*/
+.cinematic-grade {
+  /*
+    No `position` here on purpose: this file's rules are unlayered CSS,
+    which always beats Tailwind's `@layer utilities` classes regardless
+    of source order — setting `position: relative` here would silently
+    override a sibling `absolute` utility class on the same element.
+    Callers add `relative` or `absolute` themselves via Tailwind.
+  */
+  overflow: hidden;
+}
+.cinematic-grade img,
+.cinematic-grade video {
+  filter: grayscale(0.25) contrast(1.08) brightness(0.88) saturate(1.05);
+}
+.cinematic-grade::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    160deg,
+    oklch(0.5 0.1 145 / 0.16) 0%,
+    transparent 45%,
+    transparent 55%,
+    oklch(0.62 0.15 45 / 0.14) 100%
+  );
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+.text-pretty {
+  text-wrap: pretty;
+}
