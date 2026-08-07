@@ -22,7 +22,7 @@ export default function Gallery({ category, items, type }: GalleryProps) {
 
   return (
     <main className="flex-1 bg-bg pb-24 pt-32 sm:pt-36">
-      <div className="mx-auto max-w-6xl px-5 sm:px-8">
+      <div className="mx-auto max-w-[1800px] px-5 sm:px-8 lg:px-16">
         <Link
           href={`/${category.slug}`}
           className="inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg rounded-sm"
@@ -52,7 +52,7 @@ export default function Gallery({ category, items, type }: GalleryProps) {
           variants={staggerContainer(0.08)}
           initial={prefersReducedMotion ? "show" : "hidden"}
           animate="show"
-          className="mt-14 columns-2 gap-4 sm:gap-5 md:columns-3 md:gap-6 lg:columns-4"
+          className="mt-14 columns-2 gap-4 sm:gap-5 md:columns-3 md:gap-6 lg:columns-4 2xl:columns-5"
         >
           {items.map((item, index) =>
             type === "photography" ? (

@@ -57,7 +57,7 @@ export default function SplitChooser({ category }: SplitChooserProps) {
     : { duration: 0.5, ease: EASE_OUT_EXPO };
 
   return (
-    <main className="flex min-h-screen flex-col bg-bg px-4 pb-10 pt-24 sm:px-6 sm:pt-28">
+    <main className="mx-auto flex min-h-screen w-full max-w-[1800px] flex-col bg-bg px-5 pb-10 pt-24 sm:px-8 sm:pt-28 lg:px-16">
       <motion.div
         initial={shouldReduceMotion ? false : "hidden"}
         animate="show"
@@ -180,11 +180,26 @@ function SplitHalf({
             />
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-bg/70 via-transparent to-bg/20" />
+          {/* Vignette guarantees label contrast regardless of what the underlying photo looks like */}
+          <div
+            aria-hidden
+            className="absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,0,0,0.55) 0%, transparent 70%)",
+            }}
+          />
           <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
-            <h2 className="font-display text-5xl italic text-ink lg:text-7xl">
+            <h2
+              className="font-display text-5xl italic text-ink lg:text-7xl"
+              style={{ textShadow: "0 4px 28px rgba(0,0,0,0.85), 0 1px 4px rgba(0,0,0,0.9)" }}
+            >
               {copy.label}
             </h2>
-            <p className="mt-4 max-w-xs font-sans text-sm text-muted lg:text-base">
+            <p
+              className="mt-4 max-w-xs font-sans text-sm text-ink/80 lg:text-base"
+              style={{ textShadow: "0 2px 12px rgba(0,0,0,0.9)" }}
+            >
               {copy.blurb(category.label)}
             </p>
           </div>
@@ -213,9 +228,25 @@ function StackedHalf({ side, category }: { side: Side; category: Category }) {
         />
       </div>
       <div className="absolute inset-0 bg-gradient-to-t from-bg/75 via-transparent to-bg/10" />
+      <div
+        aria-hidden
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(ellipse 70% 60% at 50% 50%, rgba(0,0,0,0.55) 0%, transparent 70%)",
+        }}
+      />
       <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
-        <h2 className="font-display text-4xl italic text-ink">{copy.label}</h2>
-        <p className="mt-3 max-w-xs font-sans text-sm text-muted">
+        <h2
+          className="font-display text-4xl italic text-ink"
+          style={{ textShadow: "0 4px 28px rgba(0,0,0,0.85), 0 1px 4px rgba(0,0,0,0.9)" }}
+        >
+          {copy.label}
+        </h2>
+        <p
+          className="mt-3 max-w-xs font-sans text-sm text-ink/80"
+          style={{ textShadow: "0 2px 12px rgba(0,0,0,0.9)" }}
+        >
           {copy.blurb(category.label)}
         </p>
       </div>

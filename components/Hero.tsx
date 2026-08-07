@@ -16,14 +16,21 @@ export default function Hero() {
     >
       {/* Background — placeholder still, to be swapped with a shot of Mustafa or his work */}
       <div className="cinematic-grade absolute inset-0">
-        <Image
-          src={picsumUrl("hero-mustafa-mazyad", 1920, 1200)}
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover"
-        />
+        <motion.div
+          className="absolute inset-0"
+          initial={{ scale: 1 }}
+          animate={prefersReducedMotion ? { scale: 1 } : { scale: [1, 1.08, 1] }}
+          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <Image
+            src={picsumUrl("hero-mustafa-mazyad", 1920, 1200)}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+        </motion.div>
       </div>
 
       {/* Scrim — keeps headline/body text comfortably above 4.5:1 contrast */}
@@ -40,7 +47,7 @@ export default function Hero() {
         variants={staggerContainer(0.12, 0.1)}
         initial="hidden"
         animate="show"
-        className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-24 pt-40 sm:px-8 sm:pb-32"
+        className="relative z-10 mx-auto w-full max-w-[1800px] px-5 pb-24 pt-40 sm:px-8 sm:pb-32 lg:px-16"
       >
         <motion.h1
           variants={fadeUp}
@@ -68,7 +75,7 @@ export default function Hero() {
           </Link>
           <a
             href="#categories"
-            className="inline-flex items-center rounded-full border border-border-strong px-6 py-3 text-sm font-medium text-ink transition-colors hover:border-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+            className="inline-flex items-center rounded-full border border-ink/60 bg-bg/30 px-6 py-3 text-sm font-medium text-ink backdrop-blur-sm transition-colors hover:border-ink hover:bg-bg/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
             View the Work
           </a>

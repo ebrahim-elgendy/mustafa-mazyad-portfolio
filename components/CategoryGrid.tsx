@@ -38,7 +38,7 @@ export default function CategoryGrid() {
   return (
     <section
       id="categories"
-      className="mx-auto max-w-6xl px-5 py-20 sm:px-8 sm:py-28"
+      className="mx-auto max-w-[1800px] px-5 py-20 sm:px-8 sm:py-28 lg:px-16"
     >
       <h2 className="mb-10 font-display text-3xl text-ink sm:mb-14 sm:text-4xl">
         The Work

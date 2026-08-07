@@ -14,7 +14,7 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-border bg-surface">
-      <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8">
+      <div className="mx-auto max-w-[1800px] px-5 py-14 sm:px-8 lg:px-16">
         <div className="flex flex-col gap-10 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-sm">
             <Link
