@@ -5,6 +5,7 @@ import {
   picsumUrl,
 } from "@/lib/placeholder";
 import { CategorySlug } from "@/lib/data/categories";
+import { getLiveAssets } from "@/lib/data/source-map";
 
 export type WorkType = "photography" | "video";
 
@@ -95,6 +96,18 @@ const TITLE_POOL: Record<CategorySlug, string[]> = {
     "Corridor Light",
     "The Procedure Room",
   ],
+  podcast: [
+    "Episode One",
+    "The Long Cut",
+    "Mic Check",
+    "Off the Record",
+    "Two Chairs",
+    "The Follow Up",
+    "Cold Open",
+    "Season Close",
+    "The Guest",
+    "Room Tone",
+  ],
   "real-estate": [
     "Golden Hour Facade",
     "The Living Room",
@@ -146,7 +159,34 @@ const DURATION_CYCLE = ["00:45", "01:12", "00:38", "02:05", "01:30", "00:52"];
 
 const ITEMS_PER_GALLERY = 6;
 
+function orientationFor(width: number, height: number): Orientation {
+  if (width > height * 1.05) return "landscape";
+  if (height > width * 1.05) return "portrait";
+  return "square";
+}
+
 export function getWork(category: CategorySlug, type: WorkType): WorkItem[] {
+  const liveAssets = getLiveAssets(category, type === "photography" ? "photo" : "video");
+  if (liveAssets.length > 0) {
+    return liveAssets.map((asset, i) => {
+      const width = asset.width ?? 1600;
+      const height = asset.height ?? 1200;
+      return {
+        id: `${category}-${type}-${i}`,
+        category,
+        type,
+        title: asset.filename.replace(/\.[^.]+$/, ""),
+        year: 2025,
+        orientation: orientationFor(width, height),
+        imageUrl: asset.url!,
+        imageWidth: width,
+        imageHeight: height,
+        videoUrl: type === "video" ? asset.url! : undefined,
+        duration: undefined,
+      };
+    });
+  }
+
   const pool = TITLE_POOL[category];
   const offset = type === "video" ? 4 : 0;
 

@@ -5,6 +5,7 @@ export type CategorySlug =
   | "events"
   | "fnb"
   | "medical"
+  | "podcast"
   | "real-estate"
   | "sports"
   | "products";
@@ -52,6 +53,12 @@ export const CATEGORIES: Category[] = [
     label: "Medical",
     blurb: "Precision environments, shot with the same care they demand.",
     coverSeed: "medical-cover",
+  },
+  {
+    slug: "podcast",
+    label: "Podcast",
+    blurb: "Long-form conversation, framed and lit like it matters.",
+    coverSeed: "podcast-cover",
   },
   {
     slug: "real-estate",
