@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { execFile } from "child_process";
 import { promisify } from "util";
+import sharp from "sharp";
 
 const run = promisify(execFile);
 
@@ -30,12 +31,16 @@ for (const file of files) {
   const srcPath = path.join(rawDir, file);
   try {
     if (kind === "photo") {
-      const outPath = path.join(tmp, file);
-      await run("sips", ["-Z", "2400", "-s", "format", "jpeg", "-s", "formatOptions", "82", srcPath, "--out", outPath]);
-      const { stdout } = await run("sips", ["-g", "pixelWidth", "-g", "pixelHeight", outPath]);
-      const w = parseInt(stdout.match(/pixelWidth:\s*(\d+)/)?.[1] ?? "0", 10);
-      const h = parseInt(stdout.match(/pixelHeight:\s*(\d+)/)?.[1] ?? "0", 10);
-      const buf = await readFile(outPath);
+      // sips silently truncates decoding on some 100MP+ source JPEGs (GFX100 II
+      // originals) — it still writes a well-formed file, just with the bottom
+      // portion flat gray. sharp doesn't have this failure mode.
+      const srcBuf = await readFile(srcPath);
+      const buf = await sharp(srcBuf, { limitInputPixels: false })
+        .rotate()
+        .resize({ width: 2400, height: 2400, fit: "inside", withoutEnlargement: true })
+        .jpeg({ quality: 82 })
+        .toBuffer();
+      const { width: w, height: h } = await sharp(buf).metadata();
       const blob = await put(`${blobPrefix}/${file}`, buf, {
         access: "public",
         contentType: "image/jpeg",

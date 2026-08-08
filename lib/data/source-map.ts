@@ -122,6 +122,69 @@ export function getLiveAssets(categorySlug: string, kind: AssetKind): SourceAsse
   return [...fromSourceMap, ...fromGenerated];
 }
 
+export interface Project {
+  slug: string;
+  label: string;
+  /** The project's own first uploaded photo, used as its thumbnail — undefined until real files are ingested. */
+  cover?: { url: string; width: number; height: number };
+}
+
+interface RawProject {
+  slug: string;
+  label: string;
+  assets: SourceAsset[];
+}
+
+function projectsNode(categorySlug: string): RawProject[] | undefined {
+  const node = (SOURCE_MAP as Record<string, unknown>)[categorySlug];
+  if (!node || typeof node !== "object") return undefined;
+  const projects = (node as Record<string, unknown>).projects;
+  return Array.isArray(projects) ? (projects as RawProject[]) : undefined;
+}
+
+/**
+ * Distinct client folders within a category (e.g. Corporate's "Al Dar" and
+ * "Al Wathba Hours Race") — only categories whose SOURCE_MAP entry has a
+ * `projects` array expose these; everything else returns an empty list and
+ * the category page renders a flat gallery instead.
+ */
+export function getProjects(categorySlug: string, kind?: AssetKind): Project[] {
+  const projects = projectsNode(categorySlug);
+  if (!projects) return [];
+  return projects
+    .filter((p) => !kind || collectAssets(p.assets).some((a) => a.kind === kind))
+    .map((p) => {
+      const cover = collectAssets(p.assets).find((a) => a.kind === "photo" && a.url);
+      return {
+        slug: p.slug,
+        label: p.label,
+        cover: cover
+          ? { url: cover.url!, width: cover.width ?? 1600, height: cover.height ?? 1200 }
+          : undefined,
+      };
+    });
+}
+
+/** Live (uploaded) assets of the given kind scoped to a single project within a category. */
+export function getLiveProjectAssets(
+  categorySlug: string,
+  projectSlug: string,
+  kind: AssetKind
+): SourceAsset[] {
+  const projects = projectsNode(categorySlug);
+  const project = projects?.find((p) => p.slug === projectSlug);
+  if (!project) return [];
+  return collectAssets(project.assets).filter((a) => a.kind === kind && a.url);
+}
+
+/** Whether a project's archive is photos or video — used to pick which gallery template to render. */
+export function getProjectKind(categorySlug: string, projectSlug: string): AssetKind {
+  const projects = projectsNode(categorySlug);
+  const project = projects?.find((p) => p.slug === projectSlug);
+  const assets = project ? collectAssets(project.assets) : [];
+  return assets.some((a) => a.kind === "photo") ? "photo" : "video";
+}
+
 export const SOURCE_MAP = {
   corporate: {
     projects: [

@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getCategory } from "@/lib/data/categories";
+import { getProjects } from "@/lib/data/source-map";
 import SplitChooser from "@/components/SplitChooser";
+import ProjectChooser from "@/components/ProjectChooser";
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
@@ -29,6 +31,11 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   if (!category) {
     notFound();
+  }
+
+  const projects = getProjects(category.slug);
+  if (projects.length > 0) {
+    return <ProjectChooser category={category} projects={projects} />;
   }
 
   return <SplitChooser category={category} />;

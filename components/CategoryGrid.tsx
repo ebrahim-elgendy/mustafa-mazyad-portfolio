@@ -13,24 +13,18 @@ interface LayoutSlot {
 
 /**
  * Mirrors the order of CATEGORIES exactly:
- * automotive, content-creator, corporate, events, fnb, medical,
- * podcast, real-estate, sports, products.
+ * corporate, events, fnb, medical, podcast.
  *
- * Two "featured" slots (automotive, real-estate) anchor the rhythm;
- * everything else alternates wide/tall/standard so no two rows repeat
- * the same shape — deliberately not a uniform grid.
+ * One "featured" slot (corporate) anchors the rhythm; everything else
+ * alternates wide/tall/standard so no two rows repeat the same shape —
+ * deliberately not a uniform grid.
  */
 const LAYOUT: LayoutSlot[] = [
-  { variant: "featured", span: "lg:col-span-7" }, // automotive
-  { variant: "standard", span: "lg:col-span-5" }, // content-creator
-  { variant: "tall", span: "lg:col-span-4" }, // corporate
-  { variant: "wide", span: "lg:col-span-4" }, // events
+  { variant: "featured", span: "lg:col-span-7" }, // corporate
+  { variant: "wide", span: "lg:col-span-5" }, // events
   { variant: "tall", span: "lg:col-span-4" }, // fnb
-  { variant: "standard", span: "lg:col-span-5" }, // medical
-  { variant: "wide", span: "lg:col-span-6" }, // podcast
-  { variant: "featured", span: "lg:col-span-7" }, // real-estate
-  { variant: "wide", span: "lg:col-span-6" }, // sports
-  { variant: "wide", span: "lg:col-span-6" }, // products
+  { variant: "standard", span: "lg:col-span-4" }, // medical
+  { variant: "wide", span: "lg:col-span-4" }, // podcast
 ];
 
 export default function CategoryGrid() {

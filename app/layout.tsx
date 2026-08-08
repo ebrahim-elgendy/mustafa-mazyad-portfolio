@@ -20,7 +20,7 @@ const sansFont = Hanken_Grotesk({
 export const metadata: Metadata = {
   title: "Mustafa Mazyad — Photographer & Filmmaker",
   description:
-    "Mustafa Mazyad is an Egyptian photographer and filmmaker working across automotive, corporate, events, F&B, medical, real estate, sports, products, and content creation.",
+    "Mustafa Mazyad is an Egyptian photographer and filmmaker working across corporate, events, F&B, medical, and podcast content.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

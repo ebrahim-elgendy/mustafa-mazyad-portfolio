@@ -14,9 +14,22 @@ interface GalleryProps {
   category: Category;
   items: WorkItem[];
   type: WorkType;
+  /** Overrides for a project-scoped gallery (e.g. a single client folder within a category). */
+  backHref?: string;
+  backLabel?: string;
+  heading?: string;
+  subheading?: string;
 }
 
-export default function Gallery({ category, items, type }: GalleryProps) {
+export default function Gallery({
+  category,
+  items,
+  type,
+  backHref,
+  backLabel,
+  heading,
+  subheading,
+}: GalleryProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const prefersReducedMotion = useReducedMotion();
 
@@ -24,7 +37,7 @@ export default function Gallery({ category, items, type }: GalleryProps) {
     <main className="flex-1 bg-bg pb-24 pt-32 sm:pt-36">
       <div className="mx-auto max-w-[1800px] px-5 sm:px-8 lg:px-16">
         <Link
-          href={`/${category.slug}`}
+          href={backHref ?? `/${category.slug}`}
           className="inline-flex items-center gap-2 text-sm text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg rounded-sm"
         >
           <svg aria-hidden="true" viewBox="0 0 20 20" width="14" height="14" fill="none">
@@ -36,15 +49,15 @@ export default function Gallery({ category, items, type }: GalleryProps) {
               strokeLinejoin="round"
             />
           </svg>
-          Back to {category.label}
+          {backLabel ?? `Back to ${category.label}`}
         </Link>
 
         <header className="mt-6 max-w-2xl">
           <h1 className="text-balance font-display text-[clamp(2.25rem,5vw,3.75rem)] leading-[1.05] tracking-[-0.03em] text-ink">
-            {category.label} {type === "photography" ? "Photography" : "Video"}
+            {heading ?? `${category.label} ${type === "photography" ? "Photography" : "Video"}`}
           </h1>
           <p className="mt-4 text-pretty font-sans text-base text-muted sm:text-lg">
-            {category.blurb}
+            {subheading ?? category.blurb}
           </p>
         </header>
 

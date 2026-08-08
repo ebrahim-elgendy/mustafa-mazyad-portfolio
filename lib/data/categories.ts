@@ -1,14 +1,9 @@
 export type CategorySlug =
-  | "automotive"
-  | "content-creator"
   | "corporate"
   | "events"
   | "fnb"
   | "medical"
-  | "podcast"
-  | "real-estate"
-  | "sports"
-  | "products";
+  | "podcast";
 
 export interface Category {
   slug: CategorySlug;
@@ -18,18 +13,6 @@ export interface Category {
 }
 
 export const CATEGORIES: Category[] = [
-  {
-    slug: "automotive",
-    label: "Automotive",
-    blurb: "Chrome, motion, and the light chasing both.",
-    coverSeed: "automotive-cover",
-  },
-  {
-    slug: "content-creator",
-    label: "Content Creator",
-    blurb: "Behind-the-scenes energy, shaped for a feed that never stops.",
-    coverSeed: "content-creator-cover",
-  },
   {
     slug: "corporate",
     label: "Corporate",
@@ -59,24 +42,6 @@ export const CATEGORIES: Category[] = [
     label: "Podcast",
     blurb: "Long-form conversation, framed and lit like it matters.",
     coverSeed: "podcast-cover",
-  },
-  {
-    slug: "real-estate",
-    label: "Real Estate",
-    blurb: "Light and space, framed the way a buyer imagines living in it.",
-    coverSeed: "real-estate-cover",
-  },
-  {
-    slug: "sports",
-    label: "Sports",
-    blurb: "The split second between effort and outcome.",
-    coverSeed: "sports-cover",
-  },
-  {
-    slug: "products",
-    label: "Products",
-    blurb: "Objects made to look the way they feel to hold.",
-    coverSeed: "products-cover",
   },
 ];
 
