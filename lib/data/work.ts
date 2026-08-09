@@ -121,7 +121,7 @@ function fromLiveAssets(
       title: asset.filename.replace(/\.[^.]+$/, ""),
       year: 2025,
       orientation: orientationFor(width, height),
-      imageUrl: asset.url!,
+      imageUrl: type === "video" ? asset.posterUrl ?? asset.url! : asset.url!,
       imageWidth: width,
       imageHeight: height,
       videoUrl: type === "video" ? asset.url! : undefined,

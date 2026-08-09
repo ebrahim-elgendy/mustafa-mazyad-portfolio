@@ -25,12 +25,15 @@ interface CategoryCardProps {
   category: Category;
   variant?: CategoryCardVariant;
   className?: string;
+  /** Real uploaded photo to use instead of the picsum placeholder, once available. */
+  cover?: string;
 }
 
 export default function CategoryCard({
   category,
   variant = "standard",
   className = "",
+  cover,
 }: CategoryCardProps) {
   const [active, setActive] = useState(false);
   const reduceMotion = useReducedMotion();
@@ -63,7 +66,7 @@ export default function CategoryCard({
           className={`cinematic-grade relative w-full overflow-hidden rounded-lg ${dims.aspect}`}
         >
           <Image
-            src={picsumUrl(category.coverSeed, dims.w, dims.h)}
+            src={cover ?? picsumUrl(category.coverSeed, dims.w, dims.h)}
             alt=""
             fill
             sizes="(min-width: 1024px) 45vw, (min-width: 640px) 50vw, 100vw"

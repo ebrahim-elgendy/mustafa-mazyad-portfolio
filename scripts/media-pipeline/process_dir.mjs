@@ -1,4 +1,3 @@
-import { put } from "@vercel/blob";
 import { readFile, readdir, mkdtemp, mkdir, writeFile } from "fs/promises";
 import { tmpdir } from "os";
 import path from "path";
@@ -12,20 +11,41 @@ const run = promisify(execFile);
 // Resolve relative to this script's own location, not process.cwd() — this
 // script gets invoked from different working directories (project root when
 // run directly, the pipeline scratch dir when run from process_all.sh).
-const PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const PROJECT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 const rawDir = process.argv[2];
-const blobPrefix = process.argv[3];
+const mediaPrefix = process.argv[3]; // e.g. "corporate/al-dar" -> public/media/corporate/al-dar
 const kind = process.argv[4]; // "photo" | "video"
 const categorySlug = process.argv[5];
 const subSlug = process.argv[6];
 const genDir = path.join(PROJECT_ROOT, "lib/data/generated");
+const mediaDir = path.join(PROJECT_ROOT, "public/media", mediaPrefix);
 const outJson = path.join(genDir, `${categorySlug}__${kind}__${subSlug}.json`);
 await mkdir(genDir, { recursive: true });
+await mkdir(mediaDir, { recursive: true });
+
+function localUrl(filename) {
+  return "/" + ["media", ...mediaPrefix.split("/"), filename].map(encodeURIComponent).join("/");
+}
 
 const tmp = await mkdtemp(path.join(tmpdir(), "proc-"));
 const files = (await readdir(rawDir)).filter((f) => !f.startsWith("."));
 const results = [];
+
+// Guards against distinct source files whose output name would collide (e.g.
+// "4.mov" and "4.mp4" both stem to "4.mp4") — silently overwriting one with
+// the other on disk. Disambiguates by suffixing the source extension.
+const usedNames = new Set();
+function reserveName(candidate, sourceExt) {
+  if (!usedNames.has(candidate)) {
+    usedNames.add(candidate);
+    return candidate;
+  }
+  const stem = candidate.replace(/\.[^.]+$/, "");
+  const disambiguated = `${stem}-${sourceExt.replace(/^\./, "").toLowerCase()}.mp4`;
+  usedNames.add(disambiguated);
+  return disambiguated;
+}
 
 for (const file of files) {
   const srcPath = path.join(rawDir, file);
@@ -41,14 +61,11 @@ for (const file of files) {
         .jpeg({ quality: 82 })
         .toBuffer();
       const { width: w, height: h } = await sharp(buf).metadata();
-      const blob = await put(`${blobPrefix}/${file}`, buf, {
-        access: "public",
-        contentType: "image/jpeg",
-        addRandomSuffix: false,
-        allowOverwrite: true,
-      });
-      results.push({ filename: file, url: blob.url, width: w, height: h, sizeMB: +(buf.length / 1048576).toFixed(2) });
-      console.log(`OK photo ${file} -> ${blob.url} (${w}x${h})`);
+      const outName = reserveName(file, path.extname(file));
+      await writeFile(path.join(mediaDir, outName), buf);
+      const url = localUrl(outName);
+      results.push({ filename: file, url, width: w, height: h, sizeMB: +(buf.length / 1048576).toFixed(2) });
+      console.log(`OK photo ${file} -> ${url} (${w}x${h})`);
     } else {
       const stem = file.replace(/\.[^.]+$/, "");
       const outPath = path.join(tmp, `${stem}.mp4`);
@@ -66,14 +83,29 @@ for (const file of files) {
       ]);
       const [w, h] = stdout.trim().split(",").map(Number);
       const buf = await readFile(outPath);
-      const blob = await put(`${blobPrefix}/${stem}.mp4`, buf, {
-        access: "public",
-        contentType: "video/mp4",
-        addRandomSuffix: false,
-        allowOverwrite: true,
+      const outName = reserveName(`${stem}.mp4`, path.extname(file));
+      await writeFile(path.join(mediaDir, outName), buf);
+      const url = localUrl(outName);
+
+      // Poster frame — the .mp4 itself isn't a decodable <img> src, so the
+      // gallery thumbnail needs an actual extracted frame.
+      const posterStem = outName.replace(/\.mp4$/, "");
+      const posterTmp = path.join(tmp, `${posterStem}-poster.jpg`);
+      await run("ffmpeg", ["-y", "-ss", "00:00:00.5", "-i", outPath, "-frames:v", "1", posterTmp]);
+      const posterName = `${posterStem}-poster.jpg`;
+      await writeFile(path.join(mediaDir, posterName), await readFile(posterTmp));
+      const posterUrl = localUrl(posterName);
+
+      results.push({
+        filename: file,
+        webFilename: outName,
+        url,
+        posterUrl,
+        width: w,
+        height: h,
+        sizeMB: +(buf.length / 1048576).toFixed(2),
       });
-      results.push({ filename: file, webFilename: `${stem}.mp4`, url: blob.url, width: w, height: h, sizeMB: +(buf.length / 1048576).toFixed(2) });
-      console.log(`OK video ${file} -> ${blob.url} (${w}x${h})`);
+      console.log(`OK video ${file} -> ${url} (${w}x${h}), poster -> ${posterUrl}`);
     }
   } catch (err) {
     console.error(`FAIL ${file}: ${err.message}`);

@@ -10,16 +10,24 @@ import { fadeUp, staggerContainer } from "@/lib/motion";
 interface ProjectChooserProps {
   category: Category;
   projects: Project[];
+  /** Overrides for categories where the project picker sits under a Photography/Video split rather than at the category root. */
+  backHref?: string;
+  backLabel?: string;
 }
 
-export default function ProjectChooser({ category, projects }: ProjectChooserProps) {
+export default function ProjectChooser({
+  category,
+  projects,
+  backHref = "/",
+  backLabel = "All Work",
+}: ProjectChooserProps) {
   const reduceMotion = useReducedMotion();
 
   return (
     <main className="flex-1 bg-bg pb-24 pt-32 sm:pt-36">
       <div className="mx-auto max-w-[1800px] px-5 sm:px-8 lg:px-16">
         <Link
-          href="/"
+          href={backHref}
           className="inline-flex items-center gap-2 rounded-sm text-sm text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
         >
           <svg aria-hidden="true" viewBox="0 0 20 20" width="14" height="14" fill="none">
@@ -31,7 +39,7 @@ export default function ProjectChooser({ category, projects }: ProjectChooserPro
               strokeLinejoin="round"
             />
           </svg>
-          All Work
+          {backLabel}
         </Link>
 
         <header className="mt-6 max-w-2xl">

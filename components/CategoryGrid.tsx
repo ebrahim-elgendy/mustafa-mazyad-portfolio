@@ -27,7 +27,12 @@ const LAYOUT: LayoutSlot[] = [
   { variant: "wide", span: "lg:col-span-4" }, // podcast
 ];
 
-export default function CategoryGrid() {
+interface CategoryGridProps {
+  /** Real cover photo per category slug, once uploaded — falls back to the picsum placeholder when absent. */
+  covers?: Partial<Record<string, string>>;
+}
+
+export default function CategoryGrid({ covers }: CategoryGridProps) {
   const reduceMotion = useReducedMotion();
 
   return (
@@ -53,6 +58,7 @@ export default function CategoryGrid() {
               category={category}
               variant={slot.variant}
               className={`mb-6 break-inside-avoid sm:mb-8 lg:mb-0 ${slot.span}`}
+              cover={covers?.[category.slug]}
             />
           );
         })}

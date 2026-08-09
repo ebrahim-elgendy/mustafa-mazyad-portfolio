@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getCategory } from "@/lib/data/categories";
-import { getProjects } from "@/lib/data/source-map";
+import { categoryHasPhotography, categoryHasVideoSplit, getProjects } from "@/lib/data/source-map";
 import SplitChooser from "@/components/SplitChooser";
 import ProjectChooser from "@/components/ProjectChooser";
 
@@ -33,9 +33,15 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
+  // Categories whose projects sit under a Photography/Video split (events)
+  // show the split here first — the project picker lives at /photography.
   const projects = getProjects(category.slug);
-  if (projects.length > 0) {
+  if (projects.length > 0 && !categoryHasVideoSplit(category.slug)) {
     return <ProjectChooser category={category} projects={projects} />;
+  }
+
+  if (!categoryHasPhotography(category.slug)) {
+    redirect(`/${category.slug}/video`);
   }
 
   return <SplitChooser category={category} />;

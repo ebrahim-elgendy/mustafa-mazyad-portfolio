@@ -65,7 +65,7 @@ export default function Gallery({
           variants={staggerContainer(0.08)}
           initial={prefersReducedMotion ? "show" : "hidden"}
           animate="show"
-          className="mt-14 columns-2 gap-4 sm:gap-5 md:columns-3 md:gap-6 lg:columns-4 2xl:columns-5"
+          className="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 md:gap-6 lg:grid-cols-4"
         >
           {items.map((item, index) =>
             type === "photography" ? (
