@@ -135,6 +135,103 @@ export async function dbProjectKind(categorySlug: string, projectSlug: string): 
   return photo ? "photo" : "video";
 }
 
+export interface AdminAsset {
+  id: number;
+  kind: AssetKind;
+  status: "published" | "pending";
+  filename: string;
+  url: string;
+  posterUrl?: string;
+  width?: number;
+  height?: number;
+}
+
+export interface AdminProject {
+  id: number;
+  slug: string;
+  label: string;
+  assets: AdminAsset[];
+}
+
+export interface AdminCategoryLibrary {
+  categorySlug: string;
+  projects: AdminProject[];
+  flatAssets: AdminAsset[];
+}
+
+interface AdminAssetRow {
+  id: number;
+  category_slug: string;
+  project_id: number | null;
+  kind: AssetKind;
+  status: "published" | "pending";
+  filename: string;
+  url: string;
+  poster_url: string | null;
+  width: number | null;
+  height: number | null;
+}
+
+function toAdminAsset(row: AdminAssetRow): AdminAsset {
+  return {
+    id: row.id,
+    kind: row.kind,
+    status: row.status,
+    filename: row.filename,
+    url: row.url,
+    posterUrl: row.poster_url ?? undefined,
+    width: row.width ?? undefined,
+    height: row.height ?? undefined,
+  };
+}
+
+/**
+ * Every asset + project in the DB, grouped by category then by project
+ * (assets with no project_id land in flatAssets). Powers the admin
+ * media-library view so the admin can delete/rename/create folders and
+ * delete individual assets.
+ */
+export async function getAdminLibrary(): Promise<AdminCategoryLibrary[]> {
+  const sql = getSql();
+  const assetRows = (await sql`
+    SELECT id, category_slug, project_id, kind, status, filename, url, poster_url, width, height
+    FROM assets
+    ORDER BY created_at ASC
+  `) as AdminAssetRow[];
+  const projectRows = (await sql`
+    SELECT id, category_slug, slug, label FROM projects ORDER BY label ASC
+  `) as { id: number; category_slug: string; slug: string; label: string }[];
+
+  const categories = new Map<string, AdminCategoryLibrary>();
+  const projectsById = new Map<number, AdminProject>();
+
+  function getCategory(categorySlug: string): AdminCategoryLibrary {
+    let category = categories.get(categorySlug);
+    if (!category) {
+      category = { categorySlug, projects: [], flatAssets: [] };
+      categories.set(categorySlug, category);
+    }
+    return category;
+  }
+
+  for (const row of projectRows) {
+    const project: AdminProject = { id: row.id, slug: row.slug, label: row.label, assets: [] };
+    projectsById.set(row.id, project);
+    getCategory(row.category_slug).projects.push(project);
+  }
+
+  for (const row of assetRows) {
+    const asset = toAdminAsset(row);
+    if (row.project_id !== null) {
+      projectsById.get(row.project_id)?.assets.push(asset);
+    } else {
+      getCategory(row.category_slug).flatAssets.push(asset);
+    }
+  }
+
+  return [...categories.values()];
+}
+
 /** Finds or creates a project row for a client-supplied project label, returning its id. */
 export async function upsertProject(categorySlug: string, label: string): Promise<number> {
   const sql = getSql();

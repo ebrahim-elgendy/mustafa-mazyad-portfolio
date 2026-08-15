@@ -11,10 +11,29 @@ export interface PendingVideo {
   projectLabel?: string;
 }
 
-export default function PendingVideos({ videos }: { videos: PendingVideo[] }) {
+export default function PendingVideos({ videos: initialVideos }: { videos: PendingVideo[] }) {
+  const [videos, setVideos] = useState(initialVideos);
   const [busyId, setBusyId] = useState<number | null>(null);
   const [doneIds, setDoneIds] = useState<Set<number>>(new Set());
   const [errors, setErrors] = useState<Record<number, string>>({});
+
+  async function deleteVideo(video: PendingVideo) {
+    if (!window.confirm(`Delete "${video.filename}"? This can't be undone.`)) return;
+    setBusyId(video.id);
+    setErrors((e) => ({ ...e, [video.id]: "" }));
+    try {
+      const res = await fetch(`/api/upload/asset/${video.id}`, { method: "DELETE" });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? "Delete failed");
+      }
+      setVideos((v) => v.filter((item) => item.id !== video.id));
+    } catch (error) {
+      setErrors((e) => ({ ...e, [video.id]: (error as Error).message }));
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   async function publish(video: PendingVideo, videoFile: File, posterFile: File | null) {
     setBusyId(video.id);
@@ -74,9 +93,19 @@ export default function PendingVideos({ videos }: { videos: PendingVideo[] }) {
                   {video.projectLabel ? ` — ${video.projectLabel}` : ""}
                 </p>
               </div>
-              <a href={video.rawUrl} className="text-sm text-primary underline">
-                Download raw
-              </a>
+              <div className="flex items-center gap-3">
+                <a href={video.rawUrl} className="text-sm text-primary underline">
+                  Download raw
+                </a>
+                <button
+                  type="button"
+                  disabled={busyId === video.id}
+                  onClick={() => deleteVideo(video)}
+                  className="text-sm text-red-500 underline disabled:opacity-50"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
 
             {doneIds.has(video.id) ? (

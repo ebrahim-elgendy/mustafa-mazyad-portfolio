@@ -3,9 +3,11 @@ import { redirect } from "next/navigation";
 import { ADMIN_SESSION_COOKIE, isValidSessionToken } from "@/lib/auth";
 import { CATEGORIES } from "@/lib/data/categories";
 import { getSql } from "@/lib/db";
+import { getAdminLibrary } from "@/lib/data/db-assets";
 import { getProjects } from "@/lib/data/source-map";
 import UploadForm from "@/components/admin/UploadForm";
 import PendingVideos, { type PendingVideo } from "@/components/admin/PendingVideos";
+import MediaLibrary, { type LibraryCategory } from "@/components/admin/MediaLibrary";
 import { logout } from "./actions";
 
 export default async function AdminUploadPage() {
@@ -42,6 +44,17 @@ export default async function AdminUploadPage() {
     projectLabel: row.project_label ?? undefined,
   }));
 
+  const adminLibrary = await getAdminLibrary();
+  const libraryCategories: LibraryCategory[] = CATEGORIES.map((category) => {
+    const entry = adminLibrary.find((c) => c.categorySlug === category.slug);
+    return {
+      categorySlug: category.slug,
+      categoryLabel: category.label,
+      projects: entry?.projects ?? [],
+      flatAssets: entry?.flatAssets ?? [],
+    };
+  });
+
   return (
     <main className="mx-auto max-w-3xl px-6 py-16">
       <div className="mb-8 flex items-center justify-between">
@@ -59,6 +72,8 @@ export default async function AdminUploadPage() {
       />
 
       <PendingVideos videos={pendingVideos} />
+
+      <MediaLibrary categories={libraryCategories} />
     </main>
   );
 }
