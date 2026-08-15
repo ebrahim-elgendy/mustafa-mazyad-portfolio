@@ -59,15 +59,21 @@ function localUrl(...segments: string[]) {
   return "/" + segments.map((s) => encodeURIComponent(s)).join("/");
 }
 
-/** A photo asset that has already been resized + uploaded to Blob storage. */
+/**
+ * A photo asset from the old locally-hosted archive (/public/media, since
+ * removed — the client now re-uploads this content through the admin
+ * dashboard into Blob storage instead). Kept as `pending` rather than wired
+ * back to a live URL so the site falls back to placeholders instead of
+ * broken images until each folder is re-uploaded.
+ */
 function livePhoto(
   filename: string,
   sizeMB: number,
-  url: string,
-  width: number,
-  height: number
+  _url: string,
+  _width: number,
+  _height: number
 ): SourceAsset {
-  return { filename, kind: "photo", sizeMB, url, width, height };
+  return pending(filename, "photo", sizeMB);
 }
 
 function collectAssets(node: unknown): SourceAsset[] {
