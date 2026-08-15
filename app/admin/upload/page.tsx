@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { ADMIN_SESSION_COOKIE, isValidSessionToken } from "@/lib/auth";
 import { CATEGORIES } from "@/lib/data/categories";
 import { getSql } from "@/lib/db";
+import { getProjects } from "@/lib/data/source-map";
 import UploadForm from "@/components/admin/UploadForm";
 import PendingVideos, { type PendingVideo } from "@/components/admin/PendingVideos";
 import { logout } from "./actions";
@@ -15,13 +16,14 @@ export default async function AdminUploadPage() {
 
   const sql = getSql();
 
-  const projectRows = (await sql`
-    SELECT category_slug, label FROM projects ORDER BY label ASC
-  `) as { category_slug: string; label: string }[];
-
+  // Same folders the client already sees on the live site (the hand-authored
+  // archive) plus anything created through this dashboard — not DB-only.
   const projectsByCategory: Record<string, string[]> = {};
-  for (const row of projectRows) {
-    (projectsByCategory[row.category_slug] ??= []).push(row.label);
+  for (const category of CATEGORIES) {
+    const projects = await getProjects(category.slug);
+    if (projects.length > 0) {
+      projectsByCategory[category.slug] = projects.map((p) => p.label);
+    }
   }
 
   const pendingRows = (await sql`
