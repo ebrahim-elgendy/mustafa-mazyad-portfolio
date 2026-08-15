@@ -5,7 +5,6 @@ import { upload } from "@vercel/blob/client";
 
 interface FileStatus {
   file: File;
-  progress: number;
   state: "uploading" | "processing" | "done" | "error";
   message?: string;
 }
@@ -34,18 +33,21 @@ export default function UploadForm({ categories, projectsByCategory }: UploadFor
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
     const items = Array.from(files);
-    setQueue((q) => [...q, ...items.map((file) => ({ file, progress: 0, state: "uploading" as const }))]);
+    setQueue((q) => [...q, ...items.map((file) => ({ file, state: "uploading" as const }))]);
 
     for (const file of items) {
       const kind = file.type.startsWith("image/") ? "photo" : "video";
       const pathname = `raw/${categorySlug}/${slugifyPart(project)}/${crypto.randomUUID()}-${file.name}`;
 
       try {
+        // No onUploadProgress here: @vercel/blob's progress tracking pre-converts the
+        // file into a ReadableStream, and a retried upload then tries to re-read that
+        // already-consumed stream ("ReadableStream is disturbed"). Omitting it keeps
+        // the plain File body, which fetch can safely re-read on retry.
         const blob = await upload(pathname, file, {
           access: "public",
           handleUploadUrl: "/api/upload",
           multipart: file.size > 50 * 1024 * 1024,
-          onUploadProgress: ({ percentage }) => updateItem(file, { progress: percentage }),
         });
 
         updateItem(file, { state: "processing" });
@@ -134,7 +136,7 @@ export default function UploadForm({ categories, projectsByCategory }: UploadFor
             >
               <span className="truncate text-ink">{item.file.name}</span>
               <span className="shrink-0 text-muted">
-                {item.state === "uploading" && `${Math.round(item.progress)}%`}
+                {item.state === "uploading" && "Uploading…"}
                 {item.state === "processing" && "Processing…"}
                 {item.state === "done" && item.message}
                 {item.state === "error" && `Error: ${item.message}`}
