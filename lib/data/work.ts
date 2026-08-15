@@ -159,8 +159,8 @@ function placeholders(category: CategorySlug, type: WorkType, seedPrefix: string
   });
 }
 
-export function getWork(category: CategorySlug, type: WorkType): WorkItem[] {
-  const liveAssets = getLiveAssets(category, type === "photography" ? "photo" : "video");
+export async function getWork(category: CategorySlug, type: WorkType): Promise<WorkItem[]> {
+  const liveAssets = await getLiveAssets(category, type === "photography" ? "photo" : "video");
   if (liveAssets.length > 0) {
     return fromLiveAssets(category, type, `${category}-${type}`, liveAssets);
   }
@@ -168,12 +168,12 @@ export function getWork(category: CategorySlug, type: WorkType): WorkItem[] {
 }
 
 /** Same as getWork, but scoped to a single project (client folder) within a category. */
-export function getProjectWork(
+export async function getProjectWork(
   category: CategorySlug,
   projectSlug: string,
   type: WorkType
-): WorkItem[] {
-  const liveAssets = getLiveProjectAssets(
+): Promise<WorkItem[]> {
+  const liveAssets = await getLiveProjectAssets(
     category,
     projectSlug,
     type === "photography" ? "photo" : "video"

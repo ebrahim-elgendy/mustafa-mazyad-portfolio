@@ -36,7 +36,7 @@ export default async function PhotographyPage({ params }: PhotographyPageProps) 
 
   // Categories whose photography is organized by client/event folder (e.g.
   // events) show a project picker here instead of one flat gallery.
-  const projects = getProjects(category.slug);
+  const projects = await getProjects(category.slug);
   if (projects.length > 0) {
     return (
       <ProjectChooser
@@ -48,7 +48,7 @@ export default async function PhotographyPage({ params }: PhotographyPageProps) 
     );
   }
 
-  const items = getWork(category.slug, "photography");
+  const items = await getWork(category.slug, "photography");
 
   return <Gallery category={category} items={items} type="photography" />;
 }

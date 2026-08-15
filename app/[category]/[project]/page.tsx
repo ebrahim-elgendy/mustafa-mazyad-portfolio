@@ -15,14 +15,15 @@ interface ProjectPageProps {
   params: Promise<{ category: string; project: string }>;
 }
 
-function findProject(categorySlug: string, projectSlug: string) {
-  return getProjects(categorySlug).find((p) => p.slug === projectSlug);
+async function findProject(categorySlug: string, projectSlug: string) {
+  const projects = await getProjects(categorySlug);
+  return projects.find((p) => p.slug === projectSlug);
 }
 
 export async function generateMetadata({ params }: ProjectPageProps): Promise<Metadata> {
   const { category: slug, project: projectSlug } = await params;
   const category = getCategory(slug);
-  const project = category ? findProject(category.slug, projectSlug) : undefined;
+  const project = category ? await findProject(category.slug, projectSlug) : undefined;
 
   if (!category || !project) {
     return { title: `${slug} — Mustafa Mazyad` };
@@ -42,15 +43,15 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     notFound();
   }
 
-  const project = findProject(category.slug, projectSlug);
+  const project = await findProject(category.slug, projectSlug);
 
   if (!project) {
     notFound();
   }
 
-  const kind = getProjectKind(category.slug, project.slug);
+  const kind = await getProjectKind(category.slug, project.slug);
   const type: WorkType = kind === "video" ? "video" : "photography";
-  const liveAssets = getLiveProjectAssets(category.slug, project.slug, kind);
+  const liveAssets = await getLiveProjectAssets(category.slug, project.slug, kind);
 
   // Categories with a Photography/Video split (events) nest the project
   // picker under /photography — "back" from a project should return there,
@@ -85,7 +86,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     );
   }
 
-  const items = getProjectWork(category.slug, project.slug, type);
+  const items = await getProjectWork(category.slug, project.slug, type);
 
   return (
     <Gallery

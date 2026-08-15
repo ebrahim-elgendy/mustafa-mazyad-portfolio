@@ -35,12 +35,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
   // Categories whose projects sit under a Photography/Video split (events)
   // show the split here first — the project picker lives at /photography.
-  const projects = getProjects(category.slug);
+  const projects = await getProjects(category.slug);
   if (projects.length > 0 && !categoryHasVideoSplit(category.slug)) {
     return <ProjectChooser category={category} projects={projects} />;
   }
 
-  if (!categoryHasPhotography(category.slug)) {
+  if (!(await categoryHasPhotography(category.slug))) {
     redirect(`/${category.slug}/video`);
   }
 

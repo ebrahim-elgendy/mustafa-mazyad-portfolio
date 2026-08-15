@@ -3,9 +3,11 @@ import CategoryGrid from "@/components/CategoryGrid";
 import { CATEGORIES } from "@/lib/data/categories";
 import { getCategoryCover } from "@/lib/data/source-map";
 
-export default function Home() {
+export default async function Home() {
   const covers = Object.fromEntries(
-    CATEGORIES.map((category) => [category.slug, getCategoryCover(category.slug)])
+    await Promise.all(
+      CATEGORIES.map(async (category) => [category.slug, await getCategoryCover(category.slug)])
+    )
   );
 
   return (

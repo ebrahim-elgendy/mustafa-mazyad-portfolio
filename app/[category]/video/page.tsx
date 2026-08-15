@@ -33,12 +33,12 @@ export default async function VideoPage({ params }: VideoPageProps) {
     notFound();
   }
 
-  const items = getWork(category.slug, "video");
+  const items = await getWork(category.slug, "video");
 
   // Video-only categories (e.g. fnb) skip the Photography/Video split page —
   // `/${category.slug}` would just redirect straight back here, so "back"
   // has to go all the way home instead.
-  const hasSplit = categoryHasPhotography(category.slug);
+  const hasSplit = await categoryHasPhotography(category.slug);
 
   return (
     <Gallery

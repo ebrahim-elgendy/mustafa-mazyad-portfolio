@@ -17,6 +17,15 @@
  *   before they can be served on a page.
  */
 
+import {
+  dbCategoryCover,
+  dbCategoryHasPhotography,
+  dbProjectKind,
+  getDbAssets,
+  getDbProjectAssets,
+  getDbProjects,
+} from "@/lib/data/db-assets";
+
 export type AssetKind = "photo" | "video";
 
 export interface SourceAsset {
@@ -107,19 +116,21 @@ function readGeneratedAssets(categorySlug: string, kind: AssetKind): SourceAsset
   }
 }
 
-/** Every uploaded (non-null url) asset of the given kind for a category — merges hand-authored SOURCE_MAP entries with generated pipeline manifests. */
-export function getLiveAssets(categorySlug: string, kind: AssetKind): SourceAsset[] {
+/** Every uploaded (non-null url) asset of the given kind for a category — merges hand-authored SOURCE_MAP entries, generated pipeline manifests, and client-uploaded DB assets (flat, not attached to a project). */
+export async function getLiveAssets(categorySlug: string, kind: AssetKind): Promise<SourceAsset[]> {
   const node = (SOURCE_MAP as Record<string, unknown>)[categorySlug];
   const fromSourceMap = node ? collectAssets(node).filter((a) => a.kind === kind && a.url) : [];
   const fromGenerated = readGeneratedAssets(categorySlug, kind);
-  return [...fromSourceMap, ...fromGenerated];
+  const fromDb = await getDbAssets(categorySlug, kind);
+  return [...fromSourceMap, ...fromGenerated, ...fromDb];
 }
 
 /** Whether a category has any photography at all (live or pending) — categories with video-only archives (e.g. fnb) skip the Photography/Video split entirely. */
-export function categoryHasPhotography(categorySlug: string): boolean {
+export async function categoryHasPhotography(categorySlug: string): Promise<boolean> {
   const node = (SOURCE_MAP as Record<string, unknown>)[categorySlug];
   if (!node) return true;
-  return collectAssets(node).some((a) => a.kind === "photo");
+  if (collectAssets(node).some((a) => a.kind === "photo")) return true;
+  return dbCategoryHasPhotography(categorySlug);
 }
 
 /**
@@ -138,10 +149,12 @@ export function categoryHasVideoSplit(categorySlug: string): boolean {
  * placeholder — first uploaded photo if the category has any, else the
  * poster frame of its first uploaded video (e.g. fnb, which is video-only).
  */
-export function getCategoryCover(categorySlug: string): string | undefined {
-  const photo = getLiveAssets(categorySlug, "photo")[0]?.url;
+export async function getCategoryCover(categorySlug: string): Promise<string | undefined> {
+  const photo = (await getLiveAssets(categorySlug, "photo"))[0]?.url;
   if (photo) return photo;
-  return getLiveAssets(categorySlug, "video")[0]?.posterUrl;
+  const videoPoster = (await getLiveAssets(categorySlug, "video"))[0]?.posterUrl;
+  if (videoPoster) return videoPoster;
+  return dbCategoryCover(categorySlug);
 }
 
 export interface Project {
@@ -170,10 +183,9 @@ function projectsNode(categorySlug: string): RawProject[] | undefined {
  * `projects` array expose these; everything else returns an empty list and
  * the category page renders a flat gallery instead.
  */
-export function getProjects(categorySlug: string, kind?: AssetKind): Project[] {
+export async function getProjects(categorySlug: string, kind?: AssetKind): Promise<Project[]> {
   const projects = projectsNode(categorySlug);
-  if (!projects) return [];
-  return projects
+  const fromSourceMap = (projects ?? [])
     .filter((p) => !kind || collectAssets(p.assets).some((a) => a.kind === kind))
     .map((p) => {
       const cover = collectAssets(p.assets).find((a) => a.kind === "photo" && a.url);
@@ -185,26 +197,33 @@ export function getProjects(categorySlug: string, kind?: AssetKind): Project[] {
           : undefined,
       };
     });
+
+  const fromDb = await getDbProjects(categorySlug);
+  return [...fromSourceMap, ...fromDb.filter((p) => !fromSourceMap.some((sp) => sp.slug === p.slug))];
 }
 
 /** Live (uploaded) assets of the given kind scoped to a single project within a category. */
-export function getLiveProjectAssets(
+export async function getLiveProjectAssets(
   categorySlug: string,
   projectSlug: string,
   kind: AssetKind
-): SourceAsset[] {
+): Promise<SourceAsset[]> {
   const projects = projectsNode(categorySlug);
   const project = projects?.find((p) => p.slug === projectSlug);
-  if (!project) return [];
-  return collectAssets(project.assets).filter((a) => a.kind === kind && a.url);
+  const fromSourceMap = project ? collectAssets(project.assets).filter((a) => a.kind === kind && a.url) : [];
+  const fromDb = await getDbProjectAssets(categorySlug, projectSlug, kind);
+  return [...fromSourceMap, ...fromDb];
 }
 
 /** Whether a project's archive is photos or video — used to pick which gallery template to render. */
-export function getProjectKind(categorySlug: string, projectSlug: string): AssetKind {
+export async function getProjectKind(categorySlug: string, projectSlug: string): Promise<AssetKind> {
   const projects = projectsNode(categorySlug);
   const project = projects?.find((p) => p.slug === projectSlug);
-  const assets = project ? collectAssets(project.assets) : [];
-  return assets.some((a) => a.kind === "photo") ? "photo" : "video";
+  if (project) {
+    const assets = collectAssets(project.assets);
+    return assets.some((a) => a.kind === "photo") ? "photo" : "video";
+  }
+  return (await dbProjectKind(categorySlug, projectSlug)) ?? "video";
 }
 
 export const SOURCE_MAP = {
