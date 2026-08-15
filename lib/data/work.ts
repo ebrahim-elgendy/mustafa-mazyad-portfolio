@@ -118,7 +118,7 @@ function fromLiveAssets(
       id: `${idPrefix}-${i}`,
       category,
       type,
-      title: asset.filename.replace(/\.[^.]+$/, ""),
+      title: asset.title ?? asset.filename.replace(/\.[^.]+$/, "").trim(),
       year: 2025,
       orientation: orientationFor(width, height),
       imageUrl: type === "video" ? asset.posterUrl ?? asset.url! : asset.url!,

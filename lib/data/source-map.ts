@@ -6,16 +6,15 @@
  * dropped into /public/media (served locally, no external host) —
  * until then they stay `null` and the site keeps rendering placeholders.
  *
- * Open questions to confirm before this is final (see conversation):
- * - fnb (food reels): the Drive listing was mid-scroll: filenames after
- *   "v4.mp4" were not visible and are NOT included below. Get the full list.
- * - podcast: pure long-form video, no photo counterpart — doesn't fit the
- *   Photography/Video SplitChooser pattern used by every other category.
- *   Needs its own route/template (episode list) rather than reusing
- *   app/[category]/photography and app/[category]/video.
- * - events/video has files up to ~960MB. These (and anything else this
- *   large) must be re-encoded for web delivery — they cannot be uploaded
- *   as-is to any host and served on a page.
+ * Pipeline status (see scripts/media-pipeline/process_dir.mjs):
+ * - Corporate + Events photo folders and the Events/F&B/Podcast video
+ *   archives are processed and live in /public/media, with per-folder
+ *   manifests in lib/data/generated/.
+ * - Podcast is video-only and currently reuses the standard /[category]/video
+ *   gallery; a dedicated episode-list template remains a possible follow-up.
+ * - Entries still marked `pending` below (medical, plus the large events
+ *   reels up to ~960MB in Drive) still need the compress/re-encode step
+ *   before they can be served on a page.
  */
 
 export type AssetKind = "photo" | "video";
@@ -33,6 +32,8 @@ export interface SourceAsset {
   height?: number;
   /** Extracted poster frame for a video asset — required for it to render as a thumbnail (the .mp4 itself isn't a decodable image). */
   posterUrl?: string;
+  /** Optional display title; overrides the filename-derived title (filenames are kept as-is for traceability to Drive). */
+  title?: string;
 }
 
 function pending(filename: string, kind: AssetKind, sizeMB: number | null = null): SourceAsset {
@@ -98,6 +99,7 @@ function readGeneratedAssets(categorySlug: string, kind: AssetKind): SourceAsset
           width: r.width as number | undefined,
           height: r.height as number | undefined,
           posterUrl: r.posterUrl as string | undefined,
+          title: r.title as string | undefined,
         }));
     });
   } catch {
@@ -276,12 +278,12 @@ export const SOURCE_MAP = {
       },
       {
         slug: "ducap-abu-dhabi",
-        label: "Ducap Abu dhabi",
+        label: "Ducap Abu Dhabi",
         assets: [] as SourceAsset[], // confirmed empty
       },
       {
         slug: "rayad-bank-abu-dhabi",
-        label: "Rayad bank - Abu Dhabi",
+        label: "Rayad Bank - Abu Dhabi",
         assets: [
           livePhoto("MZD00489.jpg", 0.22, localUrl("media", "events", "rayad-bank-abu-dhabi", "MZD00489.jpg"), 2400, 1600),
           livePhoto("MZD00498.jpg", 0.29, localUrl("media", "events", "rayad-bank-abu-dhabi", "MZD00498.jpg"), 2400, 1846),
@@ -300,7 +302,7 @@ export const SOURCE_MAP = {
       },
       {
         slug: "t100-triathlon-dubai",
-        label: "T100 Triathlon - Duabi",
+        label: "T100 Triathlon - Dubai",
         assets: [
           livePhoto("MZD07562.jpg", 0.37, localUrl("media", "events", "t100-triathlon-dubai", "MZD07562.jpg"), 2400, 2027),
           livePhoto("MZD07564.jpg", 0.38, localUrl("media", "events", "t100-triathlon-dubai", "MZD07564.jpg"), 2400, 2027),
@@ -327,7 +329,7 @@ export const SOURCE_MAP = {
       },
       {
         slug: "turkish-embassy-dubai",
-        label: "Turkish empassy - Dubai",
+        label: "Turkish Embassy - Dubai",
         assets: [
           livePhoto("DSC02900.jpg", 0.26, localUrl("media", "events", "turkish-embassy-dubai", "DSC02900.jpg"), 2400, 1600),
           livePhoto("DSC03054.jpg", 0.23, localUrl("media", "events", "turkish-embassy-dubai", "DSC03054.jpg"), 2400, 1600),
@@ -422,8 +424,8 @@ export const SOURCE_MAP = {
   fnb: {
     // "food reels" folder — flat, video-only. Confirmed via individual Drive
     // file links (past the earlier scroll cutoff). Naming has a gap — "vid
-    // 2/4/6" exist but no "vid 1/3/5" turned up; confirm those don't exist
-    // before treating this as the final count.
+    // 2/4/6" exist but no "vid 1/3/5"; the processed manifest
+    // (lib/data/generated/fnb__video__food-reels.json) confirms they're absent.
     video: [
       pending("3.mp4", "video"),
       pending("4.mov", "video"),

@@ -4,20 +4,20 @@ A dark, cinematic portfolio site for photographer/filmmaker Mustafa Mazyad, buil
 
 ## Structure
 
-- `/` — hero + category grid (Automotive, Content Creator, Corporate, Events, F&B, Medical, Real Estate, Sports, Products)
-- `/[category]` — split Photography / Video chooser for a category
+- `/` — hero + category grid (Corporate, Events, F&B, Medical, Podcast)
+- `/[category]` — Photography / Video split chooser, or a project picker for folder-organized categories
 - `/[category]/photography`, `/[category]/video` — the work gallery for that category and medium
+- `/[category]/[project]` — gallery scoped to a single client/event folder
 - `/contact` — booking/contact page
 
-## Placeholder content
+## Media
 
-All imagery (`lib/placeholder.ts`) and copy is placeholder, pending real assets from the client:
+Real work is served from `/public/media` and wired up through `lib/data/source-map.ts`:
 
-- Photos are seeded via [Lorem Picsum](https://picsum.photos) and run through a shared `.cinematic-grade` treatment (see `app/globals.css`) so mismatched stock photography still reads as one consistent, graded body of work.
-- Video placeholders point to two public domain sample clips.
+- Corporate and Events photos are resized locally (max 2400px, q82 via sharp) into `/public/media`; each client/event folder maps to a `projects` entry.
+- Events/F&B/Podcast videos are re-encoded to h264 mp4 (max 1920px, ~4Mbps via ffmpeg) with an extracted poster frame; per-folder manifests land in `lib/data/generated/`.
+- Any category or asset that isn't live yet falls back to `lib/placeholder.ts` (seeded [Lorem Picsum](https://picsum.photos) photos and two public-domain sample clips), graded by the shared `.cinematic-grade` treatment (see `app/globals.css`) so placeholders read like the real work.
 - Contact details (email, WhatsApp, Instagram) in `components/Footer.tsx`, `components/ContactContent.tsx`, and `components/Nav.tsx` are flagged inline and need confirming with the client before launch.
-
-Swap real work into `lib/data/categories.ts` and `lib/data/work.ts`.
 
 ## Development
 

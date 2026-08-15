@@ -60,7 +60,7 @@ export default function Hero() {
           variants={fadeUp}
           className="mt-5 max-w-xl font-sans text-base text-muted sm:text-lg"
         >
-          A cinematic eye, nine industries, one consistent frame.
+          A cinematic eye, five industries, one consistent frame.
         </motion.p>
 
         <motion.div

@@ -24,7 +24,7 @@ export default function Footer() {
               Mustafa Mazyad
             </Link>
             <p className="mt-4 text-sm text-muted">
-              A cinematic eye, nine industries, one consistent frame.
+              A cinematic eye, five industries, one consistent frame.
             </p>
           </div>
 
