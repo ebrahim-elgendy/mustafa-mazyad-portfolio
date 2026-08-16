@@ -10,15 +10,15 @@ web
 
 ## Users
 
-Brands, agencies, event organizers, and individual clients (real estate agents, restaurant owners, corporate marketing teams) scouting a photographer/videographer for commercial work across five industries — corporate, events, F&B, medical, and podcast content. They arrive comparing several shooters' reels and portfolios side by side, often on mobile, and are judging craft and taste within seconds.
+Brands, agencies, event organizers, and individual clients (real estate agents, restaurant owners, corporate marketing teams) scouting a photographer/videographer for commercial work across ten industries — automotive, content creation, contracts, corporate, events, F&B, medical, real estate, sports, and weddings. They arrive comparing several shooters' reels and portfolios side by side, often on mobile, and are judging craft and taste within seconds.
 
 ## Product Purpose
 
-A portfolio site for Egyptian photographer/videographer Mustafa Mazyad that showcases the breadth and quality of his work across five categories, lets a visitor choose between his photography and video work within any category, and converts an impressed visitor into a booked discovery call. Success is a visitor spending real time in a category's gallery and reaching out to book a call.
+A portfolio site for UAE-based photographer/videographer Mostafa Mazyad that showcases the breadth and quality of his work across ten categories, lets a visitor choose between his photography and video work within any category, and converts an impressed visitor into a booked discovery call. Success is a visitor spending real time in a category's gallery and reaching out to book a call.
 
 ## Positioning
 
-One photographer, one consistent cinematic eye, applied credibly across five completely different industries — the range is the proof of skill, not a liability.
+One photographer, one consistent cinematic eye, applied credibly across ten completely different industries — the range is the proof of skill, not a liability.
 
 ## Conversion & proof
 
@@ -40,7 +40,7 @@ Squarespace/Format-style photographer template portfolios: light backgrounds, un
 
 - Let the work carry the brand — imagery and motion do the persuading; UI chrome stays quiet and gets out of the way.
 - Restraint as luxury — confidence through understatement, not embellishment; every animation earns its place.
-- One consistent cinematic grammar across all five categories, so the range reads as versatility, not inconsistency.
+- One consistent cinematic grammar across all ten categories, so the range reads as versatility, not inconsistency.
 - Every path — hero, category, photography/video split, gallery — narrows toward booking a call without ever feeling like a funnel.
 - Reject portfolio-builder template tells on sight: no light chrome, no uniform boxy grids, no generic iconography.
 

@@ -1,5 +1,5 @@
 /**
- * Staging manifest for Mustafa's real archive (Drive: "Shared with me / portflio").
+ * Staging manifest for Mostafa's real archive (Drive: "Shared with me / portflio").
  *
  * Mirrors the folder tree exactly as shown in the client's screenshots.
  * `url` fields are filled in once each asset is resized/compressed and
@@ -137,17 +137,6 @@ export async function categoryHasPhotography(categorySlug: string): Promise<bool
   if (!node) return true;
   if (collectAssets(node).some((a) => a.kind === "photo")) return true;
   return dbCategoryHasPhotography(categorySlug);
-}
-
-/**
- * Whether a category's project picker sits under a Photography/Video split
- * (events: real client folders for photos, plus a separate flat video reel)
- * rather than at the category root (corporate: projects only, no split).
- * Used to point a project page's "back" link at the picker, not the split.
- */
-export function categoryHasVideoSplit(categorySlug: string): boolean {
-  const node = (SOURCE_MAP as Record<string, unknown>)[categorySlug];
-  return !!node && typeof node === "object" && "projects" in node && "video" in node;
 }
 
 /**
@@ -419,7 +408,7 @@ export const SOURCE_MAP = {
     ],
 
     // Events / Video — flat, plus one nested "podcast" subfolder (not yet
-    // expanded — separate from the top-level `podcast` category above).
+    // expanded — separate from the top-level `content-creator` category above).
     video: [
       pending("crown consalut .mp4", "video", 430.2),
       pending("Day 02.mp4", "video", 239.7),
@@ -442,8 +431,8 @@ export const SOURCE_MAP = {
       pending("wolter cluwer highlight .mp4", "video", 959.9),
     ],
     // Events / Video / podcast — confirmed via Drive link: same 6 filenames
-    // (near-identical sizes) as the top-level `podcast` category. Treated as
-    // a duplicate copy, not distinct content.
+    // (near-identical sizes) as the top-level `content-creator` category. Treated
+    // as a duplicate copy, not distinct content.
   },
 
   fnb: {
@@ -537,7 +526,7 @@ export const SOURCE_MAP = {
     ],
   },
 
-  podcast: {
+  "content-creator": {
     video: [
       pending("اخطاء تفاداهم قبل م تشتري ف دبي؟.mp4", "video"),
       pending("90% of the people.mp4", "video"),

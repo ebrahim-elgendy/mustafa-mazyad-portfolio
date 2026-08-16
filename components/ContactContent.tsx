@@ -53,7 +53,7 @@ export default function ContactContent() {
             href={`mailto:${CONTACT_EMAIL}`}
             className="inline-flex items-center rounded-full bg-accent px-6 py-3 text-sm font-medium text-accent-ink transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
-            Email Mustafa
+            Email Mostafa
           </a>
           <a
             href={WHATSAPP_HREF}
@@ -96,7 +96,7 @@ export default function ContactContent() {
           <div>
             <dt className="font-sans text-xs text-muted">Based in</dt>
             <dd className="mt-2 font-sans text-sm text-ink">
-              Cairo, Egypt — available worldwide
+              Dubai, UAE — available worldwide
             </dd>
           </div>
         </motion.dl>

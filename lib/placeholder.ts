@@ -1,5 +1,5 @@
 /**
- * Placeholder media, to be replaced with Mustafa's real shoots.
+ * Placeholder media, to be replaced with Mostafa's real shoots.
  * Picsum gives stable, seeded stock photography; the `.cinematic-grade`
  * treatment (see globals.css) grades every image the same way so the
  * mismatched stock content still reads as one coherent body of work.

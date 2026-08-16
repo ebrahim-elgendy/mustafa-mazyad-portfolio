@@ -14,7 +14,7 @@ export default function Hero() {
       aria-label="Introduction"
       className="relative flex min-h-screen items-end overflow-hidden bg-bg"
     >
-      {/* Background — placeholder still, to be swapped with a shot of Mustafa or his work */}
+      {/* Background — placeholder still, to be swapped with a shot of Mostafa or his work */}
       <div className="cinematic-grade absolute inset-0">
         <motion.div
           className="absolute inset-0"
@@ -53,7 +53,7 @@ export default function Hero() {
           variants={fadeUp}
           className="text-balance font-display text-[clamp(2.75rem,7vw,5.75rem)] leading-[1.02] tracking-[-0.04em] text-ink"
         >
-          Mustafa Mazyad
+          Mostafa Mazyad
         </motion.h1>
 
         <motion.p

@@ -7,7 +7,6 @@ import {
   getProjects,
   getProjectKind,
   getLiveProjectAssets,
-  categoryHasVideoSplit,
 } from "@/lib/data/source-map";
 import Gallery from "@/components/Gallery";
 
@@ -26,11 +25,11 @@ export async function generateMetadata({ params }: ProjectPageProps): Promise<Me
   const project = category ? await findProject(category.slug, projectSlug) : undefined;
 
   if (!category || !project) {
-    return { title: `${slug} — Mustafa Mazyad` };
+    return { title: `${slug} — Mostafa Mazyad` };
   }
 
   return {
-    title: `${project.label} — ${category.label} — Mustafa Mazyad`,
+    title: `${project.label} — ${category.label} — Mostafa Mazyad`,
     description: category.blurb,
   };
 }
@@ -53,12 +52,11 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const type: WorkType = kind === "video" ? "video" : "photography";
   const liveAssets = await getLiveProjectAssets(category.slug, project.slug, kind);
 
-  // Categories with a Photography/Video split (events) nest the project
-  // picker under /photography — "back" from a project should return there,
-  // not to the split itself.
-  const hasSplit = categoryHasVideoSplit(category.slug);
-  const backHref = hasSplit ? `/${category.slug}/photography` : `/${category.slug}`;
-  const backLabel = hasSplit ? `Back to ${category.label} Photography` : `Back to ${category.label}`;
+  // Every category's project picker (client folders) lives under
+  // /photography — "back" from a project should return there, not to the
+  // Photography/Video split itself.
+  const backHref = `/${category.slug}/photography`;
+  const backLabel = `Back to ${category.label} Photography`;
 
   if (liveAssets.length === 0) {
     return (

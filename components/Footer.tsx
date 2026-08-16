@@ -21,7 +21,7 @@ export default function Footer() {
               href="/"
               className="font-display text-xl tracking-tight text-ink transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface rounded-sm"
             >
-              Mustafa Mazyad
+              Mostafa Mazyad
             </Link>
             <p className="mt-4 text-sm text-muted">
               A cinematic eye, five industries, one consistent frame.
@@ -58,7 +58,7 @@ export default function Footer() {
 
         <div className="mt-12 border-t border-border pt-6">
           <p className="text-xs text-muted">
-            &copy; {year} Mustafa Mazyad. All rights reserved.
+            &copy; {year} Mostafa Mazyad. All rights reserved.
           </p>
         </div>
       </div>

@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getCategory } from "@/lib/data/categories";
-import { categoryHasPhotography, categoryHasVideoSplit, getProjects } from "@/lib/data/source-map";
+import { categoryHasPhotography } from "@/lib/data/source-map";
 import SplitChooser from "@/components/SplitChooser";
-import ProjectChooser from "@/components/ProjectChooser";
 
 interface CategoryPageProps {
   params: Promise<{ category: string }>;
@@ -16,11 +15,11 @@ export async function generateMetadata({
   const category = getCategory(slug);
 
   if (!category) {
-    return { title: `${slug} — Mustafa Mazyad` };
+    return { title: `${slug} — Mostafa Mazyad` };
   }
 
   return {
-    title: `${category.label} — Mustafa Mazyad`,
+    title: `${category.label} — Mostafa Mazyad`,
     description: category.blurb,
   };
 }
@@ -33,13 +32,8 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
-  // Categories whose projects sit under a Photography/Video split (events)
-  // show the split here first — the project picker lives at /photography.
-  const projects = await getProjects(category.slug);
-  if (projects.length > 0 && !categoryHasVideoSplit(category.slug)) {
-    return <ProjectChooser category={category} projects={projects} />;
-  }
-
+  // Every category opens on the Photography/Video split first — project
+  // pickers (client folders) live one level down, at /photography.
   if (!(await categoryHasPhotography(category.slug))) {
     redirect(`/${category.slug}/video`);
   }

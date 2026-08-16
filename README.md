@@ -1,6 +1,6 @@
-# Mustafa Mazyad — Portfolio
+# Mostafa Mazyad — Portfolio
 
-A dark, cinematic portfolio site for photographer/filmmaker Mustafa Mazyad, built with Next.js (App Router), TypeScript, Tailwind CSS v4, and Framer Motion.
+A dark, cinematic portfolio site for photographer/filmmaker Mostafa Mazyad, built with Next.js (App Router), TypeScript, Tailwind CSS v4, and Framer Motion.
 
 ## Structure
 

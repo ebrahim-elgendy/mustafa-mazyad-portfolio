@@ -16,11 +16,11 @@ export async function generateMetadata({
   const category = getCategory(slug);
 
   if (!category) {
-    return { title: `${slug} — Mustafa Mazyad` };
+    return { title: `${slug} — Mostafa Mazyad` };
   }
 
   return {
-    title: `${category.label} Video — Mustafa Mazyad`,
+    title: `${category.label} Video — Mostafa Mazyad`,
     description: category.blurb,
   };
 }

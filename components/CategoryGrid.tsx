@@ -13,18 +13,24 @@ interface LayoutSlot {
 
 /**
  * Mirrors the order of CATEGORIES exactly:
- * corporate, events, fnb, medical, podcast.
+ * automotive, content-creator, contracts, corporate, events, fnb, medical,
+ * real-estate, sports, wedding.
  *
  * One "featured" slot (corporate) anchors the rhythm; everything else
  * alternates wide/tall/standard so no two rows repeat the same shape —
  * deliberately not a uniform grid.
  */
 const LAYOUT: LayoutSlot[] = [
+  { variant: "wide", span: "lg:col-span-5" }, // automotive
+  { variant: "tall", span: "lg:col-span-4" }, // content-creator
+  { variant: "standard", span: "lg:col-span-3" }, // contracts
   { variant: "featured", span: "lg:col-span-7" }, // corporate
   { variant: "wide", span: "lg:col-span-5" }, // events
   { variant: "tall", span: "lg:col-span-4" }, // fnb
   { variant: "standard", span: "lg:col-span-4" }, // medical
-  { variant: "wide", span: "lg:col-span-4" }, // podcast
+  { variant: "wide", span: "lg:col-span-4" }, // real-estate
+  { variant: "standard", span: "lg:col-span-4" }, // sports
+  { variant: "tall", span: "lg:col-span-4" }, // wedding
 ];
 
 interface CategoryGridProps {
