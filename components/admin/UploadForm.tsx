@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { upload } from "@vercel/blob/client";
 
 interface FileStatus {
@@ -19,6 +20,7 @@ function slugifyPart(value: string): string {
 }
 
 export default function UploadForm({ categories, projectsByCategory }: UploadFormProps) {
+  const router = useRouter();
   const [categorySlug, setCategorySlug] = useState(categories[0]?.slug ?? "");
   const [project, setProject] = useState("");
   const [queue, setQueue] = useState<FileStatus[]>([]);
@@ -73,6 +75,7 @@ export default function UploadForm({ categories, projectsByCategory }: UploadFor
           state: "done",
           message: kind === "video" ? "Uploaded — awaiting compression" : "Published",
         });
+        router.refresh();
       } catch (error) {
         updateItem(file, { state: "error", message: (error as Error).message });
       }

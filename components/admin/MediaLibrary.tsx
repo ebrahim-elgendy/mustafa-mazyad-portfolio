@@ -30,6 +30,16 @@ export default function MediaLibrary({ categories: initialCategories }: { catego
   const [busyIds, setBusyIds] = useState<Set<number>>(new Set());
   const [errors, setErrors] = useState<Record<number, string>>({});
 
+  // Re-sync when the server component re-renders with fresh data (e.g. after
+  // UploadForm calls router.refresh()) — otherwise this stays pinned to
+  // whatever was passed in on first mount. Adjusting state during render
+  // (rather than in an effect) avoids an extra render pass.
+  const [prevInitialCategories, setPrevInitialCategories] = useState(initialCategories);
+  if (initialCategories !== prevInitialCategories) {
+    setPrevInitialCategories(initialCategories);
+    setCategories(initialCategories);
+  }
+
   function setBusy(id: number, busy: boolean) {
     setBusyIds((s) => {
       const next = new Set(s);
