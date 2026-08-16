@@ -4,11 +4,10 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { fadeUp, staggerContainer } from "@/lib/motion";
 
-// Placeholder contact destinations — confirm real handles/number with the client before launch.
-const CONTACT_EMAIL = "hello@mustafamazyad.com";
-const WHATSAPP_HREF = "https://wa.me/201000000000";
-const INSTAGRAM_HANDLE = "@mustafamazyad";
-const INSTAGRAM_HREF = "https://instagram.com/mustafamazyad";
+const CONTACT_EMAIL = "mostafa.mazyad@gmail.com";
+const WHATSAPP_HREF = "https://wa.me/971507270423";
+const INSTAGRAM_HANDLE = "@mostafa_mazyad_studio";
+const INSTAGRAM_HREF = "https://www.instagram.com/mostafa_mazyad_studio";
 
 export default function ContactContent() {
   const shouldReduceMotion = useReducedMotion();

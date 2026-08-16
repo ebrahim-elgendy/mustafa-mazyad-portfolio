@@ -1,12 +1,9 @@
 import Link from "next/link";
 
-// Placeholder contact + social destinations — confirm real handles/links with the client before launch.
-const CONTACT_EMAIL = "hello@mustafamazyad.com";
+const CONTACT_EMAIL = "mostafa.mazyad@gmail.com";
 
 const SOCIAL_LINKS = [
-  { label: "Instagram", href: "#" },
-  { label: "Behance", href: "#" },
-  { label: "Reel (Vimeo)", href: "#" },
+  { label: "Instagram", href: "https://www.instagram.com/mostafa_mazyad_studio" },
 ];
 
 export default function Footer() {
@@ -47,6 +44,8 @@ export default function Footer() {
                 <a
                   key={link.label}
                   href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-sm text-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface rounded-sm"
                 >
                   {link.label}
