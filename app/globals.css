@@ -87,17 +87,14 @@ body {
   color: var(--primary-ink);
 }
 
-/* Custom scrollbar — thin, dark, matches the stage */
+/* Scrolling stays fully functional, the scrollbar itself is just never drawn. */
+html {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge/IE */
+}
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-track {
-  background: var(--bg);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border-strong);
-  border-radius: 999px;
+  width: 0;
+  height: 0;
 }
 
 /*

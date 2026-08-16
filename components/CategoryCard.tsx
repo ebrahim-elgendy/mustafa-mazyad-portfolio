@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState, type CSSProperties } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import type { Category } from "@/lib/data/categories";
-import { picsumUrl } from "@/lib/placeholder";
+import { placeholderImage } from "@/lib/placeholder";
 import { fadeUp, fadeIn } from "@/lib/motion";
 
 /** Size/rhythm variants a parent grid can assign per card. */
@@ -15,7 +15,7 @@ const VARIANT_DIMS: Record<
   CategoryCardVariant,
   { w: number; h: number; aspect: string }
 > = {
-  featured: { w: 1600, h: 1000, aspect: "aspect-[16/10]" },
+  featured: { w: 2400, h: 1000, aspect: "aspect-[12/5]" },
   wide: { w: 1500, h: 1000, aspect: "aspect-[3/2]" },
   tall: { w: 1000, h: 1300, aspect: "aspect-[10/13]" },
   standard: { w: 1200, h: 900, aspect: "aspect-[4/3]" },
@@ -25,7 +25,7 @@ interface CategoryCardProps {
   category: Category;
   variant?: CategoryCardVariant;
   className?: string;
-  /** Real uploaded photo to use instead of the picsum placeholder, once available. */
+  /** Real uploaded photo to use instead of the generated placeholder art, once available. */
   cover?: string;
 }
 
@@ -66,10 +66,10 @@ export default function CategoryCard({
           className={`cinematic-grade relative w-full overflow-hidden rounded-lg ${dims.aspect}`}
         >
           <Image
-            src={cover ?? picsumUrl(category.coverSeed, dims.w, dims.h)}
+            src={cover ?? placeholderImage(category.coverSeed, dims.w, dims.h)}
             alt=""
             fill
-            sizes="(min-width: 1024px) 45vw, (min-width: 640px) 50vw, 100vw"
+            sizes="(min-width: 640px) 50vw, 100vw"
             className="object-cover"
             style={imageStyle}
           />

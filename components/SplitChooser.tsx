@@ -6,7 +6,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import type { Transition } from "framer-motion";
 import type { Category } from "@/lib/data/categories";
-import { picsumUrl } from "@/lib/placeholder";
+import { placeholderImage } from "@/lib/placeholder";
 import { EASE_OUT_EXPO, fadeUp } from "@/lib/motion";
 
 type Side = "photography" | "video";
@@ -171,7 +171,7 @@ function SplitHalf({
         >
           <div className="cinematic-grade absolute inset-0">
             <Image
-              src={picsumUrl(`${category.slug}-${copy.seedSuffix}`, 1200, 1600)}
+              src={placeholderImage(`${category.slug}-${copy.seedSuffix}`, 1200, 1600)}
               alt={`${category.label} ${copy.label.toLowerCase()} preview`}
               fill
               sizes="50vw"
@@ -220,7 +220,7 @@ function StackedHalf({ side, category }: { side: Side; category: Category }) {
     >
       <div className="cinematic-grade absolute inset-0">
         <Image
-          src={picsumUrl(`${category.slug}-${copy.seedSuffix}`, 1200, 1600)}
+          src={placeholderImage(`${category.slug}-${copy.seedSuffix}`, 1200, 1600)}
           alt={`${category.label} ${copy.label.toLowerCase()} preview`}
           fill
           sizes="100vw"

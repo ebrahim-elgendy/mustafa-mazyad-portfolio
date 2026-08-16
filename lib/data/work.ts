@@ -2,7 +2,7 @@ import {
   ORIENTATION_DIMS,
   Orientation,
   PLACEHOLDER_VIDEO_SOURCES,
-  picsumUrl,
+  placeholderImage,
 } from "@/lib/placeholder";
 import { CategorySlug } from "@/lib/data/categories";
 import { getLiveAssets, getLiveProjectAssets, SourceAsset } from "@/lib/data/source-map";
@@ -207,7 +207,7 @@ function placeholders(category: CategorySlug, type: WorkType, seedPrefix: string
       title,
       year: i % 2 === 0 ? 2025 : 2024,
       orientation,
-      imageUrl: picsumUrl(seed, dims.w, dims.h),
+      imageUrl: placeholderImage(seed, dims.w, dims.h),
       imageWidth: dims.w,
       imageHeight: dims.h,
       videoUrl:

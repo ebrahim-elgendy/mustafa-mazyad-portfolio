@@ -106,6 +106,11 @@ function readGeneratedAssets(categorySlug: string, kind: AssetKind): SourceAsset
       const raw = JSON.parse(fs.readFileSync(path.join(dir, f), "utf-8"));
       return (raw as Array<Record<string, unknown>>)
         .filter((r) => !r.error)
+        // These manifests were written back when everything lived under
+        // /public/media; that archive is gone (content now re-uploads through
+        // the admin dashboard into Blob storage), so any entry still pointing
+        // at it is dead and would render as a broken image/video.
+        .filter((r) => typeof r.url === "string" && !r.url.startsWith("/media/"))
         .map((r) => ({
           filename: r.filename as string,
           kind,
