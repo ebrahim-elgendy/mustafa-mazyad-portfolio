@@ -1,7 +1,6 @@
 export type CategorySlug =
   | "automotive"
   | "content-creator"
-  | "contracts"
   | "corporate"
   | "events"
   | "fnb"
@@ -26,11 +25,6 @@ export const CATEGORIES: Category[] = [
     slug: "content-creator",
     label: "Content Creator",
     blurb: "Long-form conversation and social content, framed and lit like it matters.",
-  },
-  {
-    slug: "contracts",
-    label: "Contracts",
-    blurb: "The paperwork and signings behind every partnership.",
   },
   {
     slug: "corporate",
