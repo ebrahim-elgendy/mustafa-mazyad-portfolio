@@ -84,7 +84,7 @@ export default function Gallery({
                   aria-label={`Open ${item.title}, ${item.year}`}
                   className="group mb-4 block w-full break-inside-avoid rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg sm:mb-5 md:mb-6"
                 >
-                  <div className="cinematic-grade relative rounded-md">
+                  <div className="cinematic-grade relative rounded-md" data-theme="dark">
                     <Image
                       src={item.imageUrl}
                       alt={item.title}

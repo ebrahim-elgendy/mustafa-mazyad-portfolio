@@ -12,6 +12,7 @@ export default function Hero() {
   return (
     <section
       aria-label="Introduction"
+      data-theme="dark"
       className="relative flex min-h-screen items-end overflow-hidden bg-bg"
     >
       {/* Background — placeholder still, to be swapped with a shot of Mostafa or his work */}

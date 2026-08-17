@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const SCROLL_THRESHOLD = 64;
 
@@ -34,12 +35,15 @@ export default function Nav() {
           Mostafa Mazyad
         </Link>
 
-        <Link
-          href="/contact"
-          className="inline-flex items-center rounded-full bg-accent px-4 py-2 text-sm font-medium text-accent-ink transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-        >
-          Book a Call
-        </Link>
+        <div className="flex items-center gap-2 sm:gap-4">
+          <ThemeToggle />
+          <Link
+            href="/contact"
+            className="inline-flex items-center rounded-full bg-accent px-4 py-2 text-sm font-medium text-accent-ink transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+          >
+            Book a Call
+          </Link>
+        </div>
       </nav>
     </header>
   );

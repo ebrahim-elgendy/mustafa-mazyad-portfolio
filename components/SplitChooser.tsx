@@ -154,6 +154,7 @@ function SplitHalf({
   return (
     <motion.div
       className="relative flex-none self-stretch"
+      data-theme="dark"
       animate={{ width }}
       transition={widthTransition}
     >
@@ -220,6 +221,7 @@ function StackedHalf({ side, category, cover }: { side: Side; category: Category
     <Link
       href={`/${category.slug}/${side}`}
       aria-label={`View ${category.label} ${copy.label.toLowerCase()}`}
+      data-theme="dark"
       className="group block relative h-[38vh] min-h-[260px] w-full overflow-hidden rounded-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-primary"
     >
       <div className="cinematic-grade absolute inset-0 bg-surface-2">

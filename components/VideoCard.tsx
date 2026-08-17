@@ -12,7 +12,7 @@ export default function VideoCard({ item }: VideoCardProps) {
   const [isPlaying, setIsPlaying] = useState(false);
 
   return (
-    <div className="cinematic-grade relative w-full overflow-hidden rounded-md">
+    <div className="cinematic-grade relative w-full overflow-hidden rounded-md" data-theme="dark">
       {isPlaying ? (
         <video
           src={item.videoUrl}

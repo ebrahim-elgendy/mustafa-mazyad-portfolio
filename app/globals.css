@@ -31,6 +31,45 @@
   --z-toast: 70;
 }
 
+/*
+  Explicit dark scope — same values as the :root default above. Lets a
+  subtree (the hero, the split-chooser photo panels, in-photo captions)
+  stay cinematic-dark on purpose even when the page itself is switched to
+  light mode, since that text sits on a photo + scrim, not the page bg.
+*/
+[data-theme="dark"] {
+  --bg: oklch(0.07 0 0);
+  --surface: oklch(0.13 0.006 145);
+  --surface-2: oklch(0.17 0.008 145);
+  --border: oklch(0.24 0.006 145);
+  --border-strong: oklch(0.34 0.008 145);
+  --ink: oklch(0.95 0 0);
+  --muted: oklch(0.60 0.006 145);
+  --primary: oklch(0.50 0.10 145);
+  --primary-hover: oklch(0.58 0.11 145);
+  --primary-ink: oklch(0.98 0 0);
+  --accent: oklch(0.62 0.15 45);
+  --accent-hover: oklch(0.68 0.16 45);
+  --accent-ink: oklch(0.98 0 0);
+}
+
+/* Light mode — a soft warm-gray tint, never pure white. */
+[data-theme="light"] {
+  --bg: oklch(0.96 0.006 95);
+  --surface: oklch(0.93 0.008 95);
+  --surface-2: oklch(0.89 0.01 95);
+  --border: oklch(0.82 0.008 95);
+  --border-strong: oklch(0.70 0.01 95);
+  --ink: oklch(0.20 0.008 95);
+  --muted: oklch(0.44 0.012 95);
+  --primary: oklch(0.42 0.11 145);
+  --primary-hover: oklch(0.36 0.11 145);
+  --primary-ink: oklch(0.98 0 0);
+  --accent: oklch(0.52 0.16 45);
+  --accent-hover: oklch(0.46 0.16 45);
+  --accent-ink: oklch(0.98 0 0);
+}
+
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
@@ -80,6 +119,7 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-sans);
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 ::selection {
