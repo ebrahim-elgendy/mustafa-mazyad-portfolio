@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { EASE_OUT_QUART, fadeUp, staggerContainer } from "@/lib/motion";
-import { placeholderImage } from "@/lib/placeholder";
+import { heroPlaceholderImage } from "@/lib/placeholder";
 
 export default function Hero() {
   const prefersReducedMotion = useReducedMotion();
@@ -23,7 +23,7 @@ export default function Hero() {
           transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
         >
           <Image
-            src={placeholderImage("hero-mostafa-mazyad", 1920, 1200)}
+            src={heroPlaceholderImage(1920, 1200)}
             alt=""
             fill
             priority

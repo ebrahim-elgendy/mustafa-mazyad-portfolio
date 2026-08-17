@@ -61,63 +61,71 @@ export default function Gallery({
           </p>
         </header>
 
-        <motion.div
-          variants={staggerContainer(0.08)}
-          initial={prefersReducedMotion ? "show" : "hidden"}
-          animate="show"
-          className="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 md:gap-6 lg:grid-cols-4"
-        >
-          {items.map((item, index) =>
-            type === "photography" ? (
-              <motion.button
-                key={item.id}
-                type="button"
-                variants={fadeUp}
-                onClick={() => setOpenIndex(index)}
-                aria-label={`Open ${item.title}, ${item.year}`}
-                className="group mb-4 block w-full break-inside-avoid rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg sm:mb-5 md:mb-6"
-              >
-                <div className="cinematic-grade relative rounded-md">
-                  <Image
-                    src={item.imageUrl}
-                    alt={item.title}
-                    width={item.imageWidth}
-                    height={item.imageHeight}
-                    sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
-                    className="h-auto w-full align-top transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-                  />
+        {items.length === 0 ? (
+          <div className="mt-14 flex min-h-[30vh] items-center justify-center rounded-lg border border-dashed border-border-strong bg-surface-2/40">
+            <p className="font-sans text-sm text-muted">
+              {type === "photography" ? "Photos" : "Videos"} coming soon.
+            </p>
+          </div>
+        ) : (
+          <motion.div
+            variants={staggerContainer(0.08)}
+            initial={prefersReducedMotion ? "show" : "hidden"}
+            animate="show"
+            className="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 md:gap-6 lg:grid-cols-4"
+          >
+            {items.map((item, index) =>
+              type === "photography" ? (
+                <motion.button
+                  key={item.id}
+                  type="button"
+                  variants={fadeUp}
+                  onClick={() => setOpenIndex(index)}
+                  aria-label={`Open ${item.title}, ${item.year}`}
+                  className="group mb-4 block w-full break-inside-avoid rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg sm:mb-5 md:mb-6"
+                >
+                  <div className="cinematic-grade relative rounded-md">
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.title}
+                      width={item.imageWidth}
+                      height={item.imageHeight}
+                      sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+                      className="h-auto w-full align-top transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                    />
 
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5"
-                    style={{
-                      background:
-                        "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.75) 100%)",
-                    }}
-                  />
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5"
+                      style={{
+                        background:
+                          "linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.75) 100%)",
+                      }}
+                    />
 
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-x-0 bottom-0 p-4"
-                  >
-                    <p className="line-clamp-2 font-display text-lg leading-snug text-ink">
-                      {item.title}
-                    </p>
-                    <p className="mt-0.5 font-sans text-xs text-muted">{item.year}</p>
+                    <div
+                      aria-hidden
+                      className="pointer-events-none absolute inset-x-0 bottom-0 p-4"
+                    >
+                      <p className="line-clamp-2 font-display text-lg leading-snug text-ink">
+                        {item.title}
+                      </p>
+                      <p className="mt-0.5 font-sans text-xs text-muted">{item.year}</p>
+                    </div>
                   </div>
-                </div>
-              </motion.button>
-            ) : (
-              <motion.div
-                key={item.id}
-                variants={fadeUp}
-                className="mb-4 break-inside-avoid sm:mb-5 md:mb-6"
-              >
-                <VideoCard item={item} />
-              </motion.div>
-            )
-          )}
-        </motion.div>
+                </motion.button>
+              ) : (
+                <motion.div
+                  key={item.id}
+                  variants={fadeUp}
+                  className="mb-4 break-inside-avoid sm:mb-5 md:mb-6"
+                >
+                  <VideoCard item={item} />
+                </motion.div>
+              )
+            )}
+          </motion.div>
+        )}
       </div>
 
       {type === "photography" && (

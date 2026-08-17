@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { getCategory } from "@/lib/data/categories";
-import { categoryHasPhotography } from "@/lib/data/source-map";
+import { categoryHasPhotography, getLiveAssets } from "@/lib/data/source-map";
 import SplitChooser from "@/components/SplitChooser";
 
 interface CategoryPageProps {
@@ -38,5 +38,16 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     redirect(`/${category.slug}/video`);
   }
 
-  return <SplitChooser category={category} />;
+  const [photoAssets, videoAssets] = await Promise.all([
+    getLiveAssets(category.slug, "photo"),
+    getLiveAssets(category.slug, "video"),
+  ]);
+
+  return (
+    <SplitChooser
+      category={category}
+      photoCover={photoAssets[0]?.url ?? undefined}
+      videoCover={videoAssets[0]?.posterUrl}
+    />
+  );
 }

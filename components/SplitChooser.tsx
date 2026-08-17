@@ -6,32 +6,30 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import type { Transition } from "framer-motion";
 import type { Category } from "@/lib/data/categories";
-import { placeholderImage } from "@/lib/placeholder";
 import { EASE_OUT_EXPO, fadeUp } from "@/lib/motion";
 
 type Side = "photography" | "video";
 
 interface SplitChooserProps {
   category: Category;
+  /** Real cover photo/poster per side, once uploaded — shows a neutral panel when absent. */
+  photoCover?: string;
+  videoCover?: string;
 }
 
-const COPY: Record<
-  Side,
-  { label: string; blurb: (label: string) => string; seedSuffix: string }
-> = {
+const COPY: Record<Side, { label: string; blurb: (label: string) => string }> = {
   photography: {
     label: "Photography",
     blurb: (label) => `Stills from the ${label} archive`,
-    seedSuffix: "split-photo",
   },
   video: {
     label: "Video",
     blurb: (label) => `Motion work from the ${label} archive`,
-    seedSuffix: "split-video",
   },
 };
 
-export default function SplitChooser({ category }: SplitChooserProps) {
+export default function SplitChooser({ category, photoCover, videoCover }: SplitChooserProps) {
+  const coverFor = (side: Side) => (side === "photography" ? photoCover : videoCover);
   const [active, setActive] = useState<Side | null>(null);
   const shouldReduceMotion = useReducedMotion();
 
@@ -83,6 +81,7 @@ export default function SplitChooser({ category }: SplitChooserProps) {
         <SplitHalf
           side="photography"
           category={category}
+          cover={coverFor("photography")}
           width={widthFor("photography")}
           widthTransition={widthTransition}
           filter={filterFor("photography")}
@@ -104,6 +103,7 @@ export default function SplitChooser({ category }: SplitChooserProps) {
         <SplitHalf
           side="video"
           category={category}
+          cover={coverFor("video")}
           width={widthFor("video")}
           widthTransition={widthTransition}
           filter={filterFor("video")}
@@ -115,8 +115,8 @@ export default function SplitChooser({ category }: SplitChooserProps) {
 
       {/* Mobile / touch — stacked, full-width cards */}
       <div className="flex flex-1 flex-col gap-3 md:hidden">
-        <StackedHalf side="photography" category={category} />
-        <StackedHalf side="video" category={category} />
+        <StackedHalf side="photography" category={category} cover={photoCover} />
+        <StackedHalf side="video" category={category} cover={videoCover} />
       </div>
     </main>
   );
@@ -129,6 +129,7 @@ function cubicBezierCss(curve: readonly [number, number, number, number]) {
 interface SplitHalfProps {
   side: Side;
   category: Category;
+  cover?: string;
   width: string;
   widthTransition: Transition;
   filter: string;
@@ -140,6 +141,7 @@ interface SplitHalfProps {
 function SplitHalf({
   side,
   category,
+  cover,
   width,
   widthTransition,
   filter,
@@ -169,15 +171,17 @@ function SplitHalf({
           aria-label={`View ${category.label} ${copy.label.toLowerCase()}`}
           className="group absolute inset-0 block focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-primary"
         >
-          <div className="cinematic-grade absolute inset-0">
-            <Image
-              src={placeholderImage(`${category.slug}-${copy.seedSuffix}`, 1200, 1600)}
-              alt={`${category.label} ${copy.label.toLowerCase()} preview`}
-              fill
-              sizes="50vw"
-              className="object-cover"
-              priority={side === "photography"}
-            />
+          <div className="cinematic-grade absolute inset-0 bg-surface-2">
+            {cover && (
+              <Image
+                src={cover}
+                alt={`${category.label} ${copy.label.toLowerCase()} preview`}
+                fill
+                sizes="50vw"
+                className="object-cover"
+                priority={side === "photography"}
+              />
+            )}
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-bg/70 via-transparent to-bg/20" />
           {/* Vignette guarantees label contrast regardless of what the underlying photo looks like */}
@@ -209,7 +213,7 @@ function SplitHalf({
   );
 }
 
-function StackedHalf({ side, category }: { side: Side; category: Category }) {
+function StackedHalf({ side, category, cover }: { side: Side; category: Category; cover?: string }) {
   const copy = COPY[side];
 
   return (
@@ -218,14 +222,16 @@ function StackedHalf({ side, category }: { side: Side; category: Category }) {
       aria-label={`View ${category.label} ${copy.label.toLowerCase()}`}
       className="group block relative h-[38vh] min-h-[260px] w-full overflow-hidden rounded-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-inset focus-visible:ring-primary"
     >
-      <div className="cinematic-grade absolute inset-0">
-        <Image
-          src={placeholderImage(`${category.slug}-${copy.seedSuffix}`, 1200, 1600)}
-          alt={`${category.label} ${copy.label.toLowerCase()} preview`}
-          fill
-          sizes="100vw"
-          className="object-cover transition-transform duration-500 ease-out group-active:scale-105"
-        />
+      <div className="cinematic-grade absolute inset-0 bg-surface-2">
+        {cover && (
+          <Image
+            src={cover}
+            alt={`${category.label} ${copy.label.toLowerCase()} preview`}
+            fill
+            sizes="100vw"
+            className="object-cover transition-transform duration-500 ease-out group-active:scale-105"
+          />
+        )}
       </div>
       <div className="absolute inset-0 bg-gradient-to-t from-bg/75 via-transparent to-bg/10" />
       <div
