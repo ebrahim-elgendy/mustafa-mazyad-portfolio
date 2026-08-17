@@ -20,10 +20,9 @@
 import {
   dbCategoryCover,
   dbCategoryHasPhotography,
-  dbProjectKind,
   getDbAssets,
-  getDbProjectAssets,
   getDbProjects,
+  getPinnedCover,
 } from "@/lib/data/db-assets";
 
 export type AssetKind = "photo" | "video";
@@ -43,6 +42,8 @@ export interface SourceAsset {
   posterUrl?: string;
   /** Optional display title; overrides the filename-derived title (filenames are kept as-is for traceability to Drive). */
   title?: string;
+  /** Admin-pinned as this category's thumbnail — bumped to the front of getLiveAssets. */
+  isCover?: boolean;
 }
 
 function pending(filename: string, kind: AssetKind, sizeMB: number | null = null): SourceAsset {
@@ -127,7 +128,7 @@ function readGeneratedAssets(categorySlug: string, kind: AssetKind): SourceAsset
   }
 }
 
-/** Every uploaded (non-null url) asset of the given kind for a category — merges hand-authored SOURCE_MAP entries, generated pipeline manifests, and client-uploaded DB assets (flat, not attached to a project). */
+/** Every uploaded (non-null url) asset of the given kind for a category — merges hand-authored SOURCE_MAP entries (including folder-nested ones), generated pipeline manifests, and all client-uploaded DB assets, flat and folder-attached alike, into one list. */
 export async function getLiveAssets(categorySlug: string, kind: AssetKind): Promise<SourceAsset[]> {
   const node = (SOURCE_MAP as Record<string, unknown>)[categorySlug];
   const fromSourceMap = node ? collectAssets(node).filter((a) => a.kind === kind && a.url) : [];
@@ -145,11 +146,16 @@ export async function categoryHasPhotography(categorySlug: string): Promise<bool
 }
 
 /**
- * Real cover image for a category's homepage card, in place of the picsum
- * placeholder — first uploaded photo if the category has any, else the
- * poster frame of its first uploaded video (e.g. fnb, which is video-only).
+ * Real cover image for a category's homepage card — an admin-pinned
+ * thumbnail (photo or video poster) wins outright; otherwise the first
+ * uploaded photo, else the poster frame of its first uploaded video (e.g.
+ * fnb, which is video-only).
  */
 export async function getCategoryCover(categorySlug: string): Promise<string | undefined> {
+  const pinned = await getPinnedCover(categorySlug);
+  const pinnedImage = pinned && (pinned.kind === "photo" ? pinned.url : pinned.posterUrl);
+  if (pinnedImage) return pinnedImage;
+
   const photo = (await getLiveAssets(categorySlug, "photo"))[0]?.url;
   if (photo) return photo;
   const videoPoster = (await getLiveAssets(categorySlug, "video"))[0]?.posterUrl;
@@ -200,30 +206,6 @@ export async function getProjects(categorySlug: string, kind?: AssetKind): Promi
 
   const fromDb = await getDbProjects(categorySlug);
   return [...fromSourceMap, ...fromDb.filter((p) => !fromSourceMap.some((sp) => sp.slug === p.slug))];
-}
-
-/** Live (uploaded) assets of the given kind scoped to a single project within a category. */
-export async function getLiveProjectAssets(
-  categorySlug: string,
-  projectSlug: string,
-  kind: AssetKind
-): Promise<SourceAsset[]> {
-  const projects = projectsNode(categorySlug);
-  const project = projects?.find((p) => p.slug === projectSlug);
-  const fromSourceMap = project ? collectAssets(project.assets).filter((a) => a.kind === kind && a.url) : [];
-  const fromDb = await getDbProjectAssets(categorySlug, projectSlug, kind);
-  return [...fromSourceMap, ...fromDb];
-}
-
-/** Whether a project's archive is photos or video — used to pick which gallery template to render. */
-export async function getProjectKind(categorySlug: string, projectSlug: string): Promise<AssetKind> {
-  const projects = projectsNode(categorySlug);
-  const project = projects?.find((p) => p.slug === projectSlug);
-  if (project) {
-    const assets = collectAssets(project.assets);
-    return assets.some((a) => a.kind === "photo") ? "photo" : "video";
-  }
-  return (await dbProjectKind(categorySlug, projectSlug)) ?? "video";
 }
 
 export const SOURCE_MAP = {

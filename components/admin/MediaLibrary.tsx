@@ -9,6 +9,7 @@ export interface LibraryAsset {
   filename: string;
   url: string;
   posterUrl?: string;
+  isCover: boolean;
 }
 
 export interface LibraryProject {
@@ -117,6 +118,77 @@ export default function MediaLibrary({ categories: initialCategories }: { catego
     }
   }
 
+  async function moveAsset(asset: LibraryAsset, fromCategorySlug: string, toCategorySlug: string) {
+    if (toCategorySlug === fromCategorySlug) return;
+    setBusy(asset.id, true);
+    setError(asset.id, "");
+    try {
+      const res = await fetch(`/api/upload/asset/${asset.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ categorySlug: toCategorySlug }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? "Move failed");
+      }
+      const moved: LibraryAsset = { ...asset, isCover: false };
+      setCategories((cats) =>
+        cats.map((cat) => {
+          if (cat.categorySlug === fromCategorySlug) {
+            return {
+              ...cat,
+              projects: cat.projects.map((p) => ({ ...p, assets: p.assets.filter((a) => a.id !== asset.id) })),
+              flatAssets: cat.flatAssets.filter((a) => a.id !== asset.id),
+            };
+          }
+          if (cat.categorySlug === toCategorySlug) {
+            return { ...cat, flatAssets: [...cat.flatAssets, moved] };
+          }
+          return cat;
+        })
+      );
+    } catch (error) {
+      setError(asset.id, (error as Error).message);
+    } finally {
+      setBusy(asset.id, false);
+    }
+  }
+
+  async function setCover(asset: LibraryAsset, categorySlug: string) {
+    setBusy(asset.id, true);
+    setError(asset.id, "");
+    try {
+      const res = await fetch(`/api/upload/asset/${asset.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ setCover: true }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? "Set thumbnail failed");
+      }
+      setCategories((cats) =>
+        cats.map((cat) =>
+          cat.categorySlug === categorySlug
+            ? {
+                ...cat,
+                projects: cat.projects.map((p) => ({
+                  ...p,
+                  assets: p.assets.map((a) => ({ ...a, isCover: a.id === asset.id })),
+                })),
+                flatAssets: cat.flatAssets.map((a) => ({ ...a, isCover: a.id === asset.id })),
+              }
+            : cat
+        )
+      );
+    } catch (error) {
+      setError(asset.id, (error as Error).message);
+    } finally {
+      setBusy(asset.id, false);
+    }
+  }
+
   async function deleteAsset(asset: LibraryAsset) {
     if (!window.confirm(`Delete "${asset.filename}"? This can't be undone.`)) return;
     setBusy(asset.id, true);
@@ -140,6 +212,8 @@ export default function MediaLibrary({ categories: initialCategories }: { catego
     }
   }
 
+  const categoryOptions = categories.map((c) => ({ slug: c.categorySlug, label: c.categoryLabel }));
+
   return (
     <div className="mt-12">
       <h2 className="mb-2 font-display text-xl text-ink">Media library</h2>
@@ -159,11 +233,15 @@ export default function MediaLibrary({ categories: initialCategories }: { catego
                 <ProjectCard
                   key={project.id}
                   project={project}
+                  categorySlug={category.categorySlug}
+                  categories={categoryOptions}
                   busy={busyIds.has(project.id)}
                   error={errors[project.id]}
                   onRename={(label) => renameProject(project.id, label)}
                   onDelete={() => deleteProject(project)}
                   onDeleteAsset={deleteAsset}
+                  onMoveAsset={moveAsset}
+                  onSetCover={setCover}
                   busyIds={busyIds}
                   errors={errors}
                 />
@@ -172,7 +250,16 @@ export default function MediaLibrary({ categories: initialCategories }: { catego
               {category.flatAssets.length > 0 && (
                 <div className="rounded-md border border-ink/10 px-4 py-3">
                   <p className="mb-3 font-medium text-ink">Unsorted</p>
-                  <AssetGrid assets={category.flatAssets} busyIds={busyIds} errors={errors} onDelete={deleteAsset} />
+                  <AssetGrid
+                    assets={category.flatAssets}
+                    categorySlug={category.categorySlug}
+                    categories={categoryOptions}
+                    busyIds={busyIds}
+                    errors={errors}
+                    onDelete={deleteAsset}
+                    onMove={moveAsset}
+                    onSetCover={setCover}
+                  />
                 </div>
               )}
 
@@ -230,20 +317,28 @@ function NewFolderForm({ onSubmit }: { onSubmit: (label: string) => Promise<void
 
 function ProjectCard({
   project,
+  categorySlug,
+  categories,
   busy,
   error,
   onRename,
   onDelete,
   onDeleteAsset,
+  onMoveAsset,
+  onSetCover,
   busyIds,
   errors,
 }: {
   project: LibraryProject;
+  categorySlug: string;
+  categories: { slug: string; label: string }[];
   busy: boolean;
   error?: string;
   onRename: (label: string) => void;
   onDelete: () => void;
   onDeleteAsset: (asset: LibraryAsset) => void;
+  onMoveAsset: (asset: LibraryAsset, fromCategorySlug: string, toCategorySlug: string) => void;
+  onSetCover: (asset: LibraryAsset, categorySlug: string) => void;
   busyIds: Set<number>;
   errors: Record<number, string>;
 }) {
@@ -292,7 +387,16 @@ function ProjectCard({
 
       <div className="mt-3">
         {project.assets.length > 0 ? (
-          <AssetGrid assets={project.assets} busyIds={busyIds} errors={errors} onDelete={onDeleteAsset} />
+          <AssetGrid
+            assets={project.assets}
+            categorySlug={categorySlug}
+            categories={categories}
+            busyIds={busyIds}
+            errors={errors}
+            onDelete={onDeleteAsset}
+            onMove={onMoveAsset}
+            onSetCover={onSetCover}
+          />
         ) : (
           <p className="text-sm text-muted">No assets yet.</p>
         )}
@@ -303,15 +407,25 @@ function ProjectCard({
 
 function AssetGrid({
   assets,
+  categorySlug,
+  categories,
   busyIds,
   errors,
   onDelete,
+  onMove,
+  onSetCover,
 }: {
   assets: LibraryAsset[];
+  categorySlug: string;
+  categories: { slug: string; label: string }[];
   busyIds: Set<number>;
   errors: Record<number, string>;
   onDelete: (asset: LibraryAsset) => void;
+  onMove: (asset: LibraryAsset, fromCategorySlug: string, toCategorySlug: string) => void;
+  onSetCover: (asset: LibraryAsset, categorySlug: string) => void;
 }) {
+  const otherCategories = categories.filter((c) => c.slug !== categorySlug);
+
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {assets.map((asset) => (
@@ -324,21 +438,51 @@ function AssetGrid({
             ) : (
               <div className="flex h-full w-full items-center justify-center text-xs text-muted">Video</div>
             )}
+            {asset.isCover && (
+              <span className="absolute left-1 top-1 rounded bg-ink/80 px-1.5 py-0.5 text-[10px] font-medium text-bg">
+                ★ Thumbnail
+              </span>
+            )}
           </div>
           <p className="truncate text-xs text-ink" title={asset.filename}>
             {asset.filename}
           </p>
-          <div className="flex items-center justify-between gap-2">
-            {asset.status === "pending" && <span className="text-xs text-muted">Pending</span>}
-            <button
-              type="button"
-              disabled={busyIds.has(asset.id)}
-              onClick={() => onDelete(asset)}
-              className="ml-auto text-xs text-red-500 underline disabled:opacity-50"
-            >
-              Delete
-            </button>
-          </div>
+          {asset.status === "pending" && <span className="text-xs text-muted">Pending</span>}
+          <button
+            type="button"
+            disabled={busyIds.has(asset.id) || asset.isCover}
+            onClick={() => onSetCover(asset, categorySlug)}
+            className="text-left text-xs text-ink underline decoration-dotted disabled:opacity-50"
+          >
+            {asset.isCover ? "Thumbnail" : "Set as thumbnail"}
+          </button>
+          <select
+            defaultValue=""
+            disabled={busyIds.has(asset.id) || otherCategories.length === 0}
+            onChange={(e) => {
+              const target = e.target.value;
+              e.target.value = "";
+              if (target) onMove(asset, categorySlug, target);
+            }}
+            className="rounded-md border border-ink/15 bg-bg px-1.5 py-1 text-xs text-ink disabled:opacity-50"
+          >
+            <option value="" disabled>
+              Move to…
+            </option>
+            {otherCategories.map((c) => (
+              <option key={c.slug} value={c.slug}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            disabled={busyIds.has(asset.id)}
+            onClick={() => onDelete(asset)}
+            className="text-xs text-red-500 underline disabled:opacity-50"
+          >
+            Delete
+          </button>
           {errors[asset.id] && <p className="text-xs text-red-500">{errors[asset.id]}</p>}
         </div>
       ))}

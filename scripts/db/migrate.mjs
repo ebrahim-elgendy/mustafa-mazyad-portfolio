@@ -42,4 +42,12 @@ await sql`
 await sql`CREATE INDEX IF NOT EXISTS assets_category_kind_idx ON assets (category_slug, kind, status)`;
 await sql`CREATE INDEX IF NOT EXISTS assets_project_idx ON assets (project_id)`;
 
+// Lets the admin pin one asset as the category's homepage/split-chooser
+// thumbnail instead of always defaulting to the oldest upload.
+await sql`ALTER TABLE assets ADD COLUMN IF NOT EXISTS is_cover BOOLEAN NOT NULL DEFAULT false`;
+await sql`
+  CREATE UNIQUE INDEX IF NOT EXISTS assets_one_cover_per_category
+  ON assets (category_slug) WHERE is_cover
+`;
+
 console.log("Schema is up to date: projects, assets.");

@@ -4,6 +4,38 @@ import { NextResponse } from "next/server";
 import { del } from "@vercel/blob";
 import { ADMIN_SESSION_COOKIE, isValidSessionToken } from "@/lib/auth";
 import { getSql } from "@/lib/db";
+import { moveAssetToCategory, setAssetCover } from "@/lib/data/db-assets";
+import { CATEGORIES } from "@/lib/data/categories";
+
+interface UpdateAssetBody {
+  categorySlug?: string;
+  setCover?: boolean;
+}
+
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const cookieStore = await cookies();
+  if (!isValidSessionToken(cookieStore.get(ADMIN_SESSION_COOKIE)?.value)) {
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  const data = (await request.json()) as UpdateAssetBody;
+
+  if (data.categorySlug) {
+    if (!CATEGORIES.some((c) => c.slug === data.categorySlug)) {
+      return NextResponse.json({ error: "Unknown category" }, { status: 400 });
+    }
+    await moveAssetToCategory(Number(id), data.categorySlug);
+  } else if (data.setCover) {
+    await setAssetCover(Number(id));
+  } else {
+    return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
+  }
+
+  revalidatePath("/", "layout");
+
+  return NextResponse.json({ ok: true });
+}
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const cookieStore = await cookies();
