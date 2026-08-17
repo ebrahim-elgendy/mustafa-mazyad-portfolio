@@ -53,13 +53,13 @@
   --accent-ink: oklch(0.98 0 0);
 }
 
-/* Light mode — a soft warm-gray tint, never pure white. */
+/* Light mode — solid white base, with a faint warm tint on the raised surfaces for depth. */
 [data-theme="light"] {
-  --bg: oklch(0.96 0.006 95);
-  --surface: oklch(0.93 0.008 95);
-  --surface-2: oklch(0.89 0.01 95);
-  --border: oklch(0.82 0.008 95);
-  --border-strong: oklch(0.70 0.01 95);
+  --bg: #ffffff;
+  --surface: oklch(0.96 0.006 95);
+  --surface-2: oklch(0.92 0.008 95);
+  --border: oklch(0.85 0.008 95);
+  --border-strong: oklch(0.72 0.01 95);
   --ink: oklch(0.20 0.008 95);
   --muted: oklch(0.44 0.012 95);
   --primary: oklch(0.42 0.11 145);
