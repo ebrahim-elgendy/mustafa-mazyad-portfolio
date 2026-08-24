@@ -61,7 +61,9 @@ export default function Hero() {
           variants={fadeUp}
           className="mt-5 max-w-xl font-sans text-base text-muted sm:text-lg"
         >
-          A cinematic eye, five industries, one consistent frame.
+          Photographer & Filmmaker based in the UAE.
+          <br />
+          Commercial stories, crafted frame by frame.
         </motion.p>
 
         <motion.div
