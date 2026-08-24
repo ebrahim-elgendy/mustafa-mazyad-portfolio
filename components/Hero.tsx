@@ -1,10 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { EASE_OUT_QUART, fadeUp, staggerContainer } from "@/lib/motion";
-import { heroPlaceholderImage } from "@/lib/placeholder";
 
 export default function Hero() {
   const prefersReducedMotion = useReducedMotion();
@@ -15,23 +13,16 @@ export default function Hero() {
       data-theme="dark"
       className="relative flex min-h-screen items-end overflow-hidden bg-bg"
     >
-      {/* Background — placeholder still, to be swapped with a shot of Mostafa or his work */}
+      {/* Background — Mostafa's showreel, looping and muted for autoplay */}
       <div className="cinematic-grade absolute inset-0">
-        <motion.div
-          className="absolute inset-0"
-          initial={{ scale: 1 }}
-          animate={prefersReducedMotion ? { scale: 1 } : { scale: [1, 1.08, 1] }}
-          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <Image
-            src={heroPlaceholderImage(1920, 1200)}
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-        </motion.div>
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          src="/video/hero-showreel.mp4"
+          autoPlay={!prefersReducedMotion}
+          loop
+          muted
+          playsInline
+        />
       </div>
 
       {/* Scrim — keeps headline/body text comfortably above 4.5:1 contrast */}
