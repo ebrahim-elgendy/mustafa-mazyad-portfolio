@@ -21,7 +21,9 @@ export default function Footer() {
               Mostafa Mazyad
             </Link>
             <p className="mt-4 text-sm text-muted">
-              A cinematic eye, five industries, one consistent frame.
+              Photographer & Filmmaker based in the UAE.
+              <br />
+              Commercial stories, crafted frame by frame.
             </p>
           </div>
 
