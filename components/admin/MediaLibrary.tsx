@@ -10,6 +10,7 @@ export interface LibraryAsset {
   url: string;
   posterUrl?: string;
   isCover: boolean;
+  focalY: number;
 }
 
 export interface LibraryProject {
@@ -189,6 +190,37 @@ export default function MediaLibrary({ categories: initialCategories }: { catego
     }
   }
 
+  async function setFocalY(asset: LibraryAsset, categorySlug: string, focalY: number) {
+    setError(asset.id, "");
+    try {
+      const res = await fetch(`/api/upload/asset/${asset.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ focalY }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? "Set crop position failed");
+      }
+      setCategories((cats) =>
+        cats.map((cat) =>
+          cat.categorySlug === categorySlug
+            ? {
+                ...cat,
+                projects: cat.projects.map((p) => ({
+                  ...p,
+                  assets: p.assets.map((a) => (a.id === asset.id ? { ...a, focalY } : a)),
+                })),
+                flatAssets: cat.flatAssets.map((a) => (a.id === asset.id ? { ...a, focalY } : a)),
+              }
+            : cat
+        )
+      );
+    } catch (error) {
+      setError(asset.id, (error as Error).message);
+    }
+  }
+
   async function deleteAsset(asset: LibraryAsset) {
     if (!window.confirm(`Delete "${asset.filename}"? This can't be undone.`)) return;
     setBusy(asset.id, true);
@@ -242,6 +274,7 @@ export default function MediaLibrary({ categories: initialCategories }: { catego
                   onDeleteAsset={deleteAsset}
                   onMoveAsset={moveAsset}
                   onSetCover={setCover}
+                  onSetFocalY={setFocalY}
                   busyIds={busyIds}
                   errors={errors}
                 />
@@ -259,6 +292,7 @@ export default function MediaLibrary({ categories: initialCategories }: { catego
                     onDelete={deleteAsset}
                     onMove={moveAsset}
                     onSetCover={setCover}
+                    onSetFocalY={setFocalY}
                   />
                 </div>
               )}
@@ -326,6 +360,7 @@ function ProjectCard({
   onDeleteAsset,
   onMoveAsset,
   onSetCover,
+  onSetFocalY,
   busyIds,
   errors,
 }: {
@@ -339,6 +374,7 @@ function ProjectCard({
   onDeleteAsset: (asset: LibraryAsset) => void;
   onMoveAsset: (asset: LibraryAsset, fromCategorySlug: string, toCategorySlug: string) => void;
   onSetCover: (asset: LibraryAsset, categorySlug: string) => void;
+  onSetFocalY: (asset: LibraryAsset, categorySlug: string, focalY: number) => void;
   busyIds: Set<number>;
   errors: Record<number, string>;
 }) {
@@ -396,6 +432,7 @@ function ProjectCard({
             onDelete={onDeleteAsset}
             onMove={onMoveAsset}
             onSetCover={onSetCover}
+            onSetFocalY={onSetFocalY}
           />
         ) : (
           <p className="text-sm text-muted">No assets yet.</p>
@@ -414,6 +451,7 @@ function AssetGrid({
   onDelete,
   onMove,
   onSetCover,
+  onSetFocalY,
 }: {
   assets: LibraryAsset[];
   categorySlug: string;
@@ -423,69 +461,142 @@ function AssetGrid({
   onDelete: (asset: LibraryAsset) => void;
   onMove: (asset: LibraryAsset, fromCategorySlug: string, toCategorySlug: string) => void;
   onSetCover: (asset: LibraryAsset, categorySlug: string) => void;
+  onSetFocalY: (asset: LibraryAsset, categorySlug: string, focalY: number) => void;
 }) {
   const otherCategories = categories.filter((c) => c.slug !== categorySlug);
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {assets.map((asset) => (
-        <div key={asset.id} className="flex flex-col gap-1">
-          <div className="relative aspect-square overflow-hidden rounded-md bg-ink/5">
-            {asset.kind === "photo" ? (
-              <img src={asset.url} alt={asset.filename} className="h-full w-full object-cover" />
-            ) : asset.posterUrl ? (
-              <img src={asset.posterUrl} alt={asset.filename} className="h-full w-full object-cover" />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-xs text-muted">Video</div>
-            )}
-            {asset.isCover && (
-              <span className="absolute left-1 top-1 rounded bg-ink/80 px-1.5 py-0.5 text-[10px] font-medium text-bg">
-                ★ Thumbnail
-              </span>
-            )}
-          </div>
-          <p className="truncate text-xs text-ink" title={asset.filename}>
-            {asset.filename}
-          </p>
-          {asset.status === "pending" && <span className="text-xs text-muted">Pending</span>}
-          <button
-            type="button"
-            disabled={busyIds.has(asset.id) || asset.isCover}
-            onClick={() => onSetCover(asset, categorySlug)}
-            className="text-left text-xs text-ink underline decoration-dotted disabled:opacity-50"
-          >
-            {asset.isCover ? "Thumbnail" : "Set as thumbnail"}
-          </button>
-          <select
-            defaultValue=""
-            disabled={busyIds.has(asset.id) || otherCategories.length === 0}
-            onChange={(e) => {
-              const target = e.target.value;
-              e.target.value = "";
-              if (target) onMove(asset, categorySlug, target);
-            }}
-            className="rounded-md border border-ink/15 bg-bg px-1.5 py-1 text-xs text-ink disabled:opacity-50"
-          >
-            <option value="" disabled>
-              Move to…
-            </option>
-            {otherCategories.map((c) => (
-              <option key={c.slug} value={c.slug}>
-                {c.label}
-              </option>
-            ))}
-          </select>
-          <button
-            type="button"
-            disabled={busyIds.has(asset.id)}
-            onClick={() => onDelete(asset)}
-            className="text-xs text-red-500 underline disabled:opacity-50"
-          >
-            Delete
-          </button>
-          {errors[asset.id] && <p className="text-xs text-red-500">{errors[asset.id]}</p>}
-        </div>
+        <AssetTile
+          key={asset.id}
+          asset={asset}
+          otherCategories={otherCategories}
+          busy={busyIds.has(asset.id)}
+          error={errors[asset.id]}
+          onDelete={() => onDelete(asset)}
+          onMove={(toCategorySlug) => onMove(asset, categorySlug, toCategorySlug)}
+          onSetCover={() => onSetCover(asset, categorySlug)}
+          onSetFocalY={(focalY) => onSetFocalY(asset, categorySlug, focalY)}
+        />
       ))}
+    </div>
+  );
+}
+
+function AssetTile({
+  asset,
+  otherCategories,
+  busy,
+  error,
+  onDelete,
+  onMove,
+  onSetCover,
+  onSetFocalY,
+}: {
+  asset: LibraryAsset;
+  otherCategories: { slug: string; label: string }[];
+  busy: boolean;
+  error?: string;
+  onDelete: () => void;
+  onMove: (toCategorySlug: string) => void;
+  onSetCover: () => void;
+  onSetFocalY: (focalY: number) => void;
+}) {
+  // Local, live-updating copy so dragging the slider previews the crop
+  // instantly — onSetFocalY (a network call) only fires once, on release.
+  const [previewFocalY, setPreviewFocalY] = useState(asset.focalY);
+  const [prevAssetFocalY, setPrevAssetFocalY] = useState(asset.focalY);
+  if (asset.focalY !== prevAssetFocalY) {
+    setPrevAssetFocalY(asset.focalY);
+    setPreviewFocalY(asset.focalY);
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      <div
+        className="relative overflow-hidden rounded-md bg-ink/5"
+        style={{ aspectRatio: asset.isCover ? "3 / 2" : "1 / 1" }}
+      >
+        {asset.kind === "photo" ? (
+          <img
+            src={asset.url}
+            alt={asset.filename}
+            className="h-full w-full object-cover"
+            style={asset.isCover ? { objectPosition: `50% ${previewFocalY}%` } : undefined}
+          />
+        ) : asset.posterUrl ? (
+          <img
+            src={asset.posterUrl}
+            alt={asset.filename}
+            className="h-full w-full object-cover"
+            style={asset.isCover ? { objectPosition: `50% ${previewFocalY}%` } : undefined}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-xs text-muted">Video</div>
+        )}
+        {asset.isCover && (
+          <span className="absolute left-1 top-1 rounded bg-ink/80 px-1.5 py-0.5 text-[10px] font-medium text-bg">
+            ★ Thumbnail
+          </span>
+        )}
+      </div>
+      <p className="truncate text-xs text-ink" title={asset.filename}>
+        {asset.filename}
+      </p>
+      {asset.status === "pending" && <span className="text-xs text-muted">Pending</span>}
+      <button
+        type="button"
+        disabled={busy || asset.isCover}
+        onClick={onSetCover}
+        className="text-left text-xs text-ink underline decoration-dotted disabled:opacity-50"
+      >
+        {asset.isCover ? "Thumbnail" : "Set as thumbnail"}
+      </button>
+      {asset.isCover && (asset.kind === "photo" || asset.posterUrl) && (
+        <label className="flex flex-col gap-0.5 text-[10px] text-muted">
+          Crop position (top ↔ bottom)
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={previewFocalY}
+            disabled={busy}
+            onChange={(e) => setPreviewFocalY(Number(e.currentTarget.value))}
+            onPointerUp={(e) => onSetFocalY(Number(e.currentTarget.value))}
+            onKeyUp={(e) => onSetFocalY(Number(e.currentTarget.value))}
+            className="w-full"
+          />
+        </label>
+      )}
+      <select
+        defaultValue=""
+        disabled={busy || otherCategories.length === 0}
+        onChange={(e) => {
+          const target = e.target.value;
+          e.target.value = "";
+          if (target) onMove(target);
+        }}
+        className="rounded-md border border-ink/15 bg-bg px-1.5 py-1 text-xs text-ink disabled:opacity-50"
+      >
+        <option value="" disabled>
+          Move to…
+        </option>
+        {otherCategories.map((c) => (
+          <option key={c.slug} value={c.slug}>
+            {c.label}
+          </option>
+        ))}
+      </select>
+      <button
+        type="button"
+        disabled={busy}
+        onClick={onDelete}
+        className="text-xs text-red-500 underline disabled:opacity-50"
+      >
+        Delete
+      </button>
+      {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );
 }

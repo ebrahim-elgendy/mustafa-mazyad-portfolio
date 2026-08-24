@@ -17,6 +17,7 @@ interface AssetRow {
   height: number | null;
   size_mb: number | null;
   is_cover: boolean;
+  focal_y: number;
 }
 
 function toSourceAsset(kind: AssetKind, row: AssetRow): SourceAsset {
@@ -29,6 +30,7 @@ function toSourceAsset(kind: AssetKind, row: AssetRow): SourceAsset {
     height: row.height ?? undefined,
     posterUrl: row.poster_url ?? undefined,
     isCover: row.is_cover,
+    focalY: row.focal_y,
   };
 }
 
@@ -36,7 +38,7 @@ function toSourceAsset(kind: AssetKind, row: AssetRow): SourceAsset {
 export async function getDbAssets(categorySlug: string, kind: AssetKind): Promise<SourceAsset[]> {
   const sql = getSql();
   const rows = (await sql`
-    SELECT filename, url, poster_url, width, height, size_mb, is_cover
+    SELECT filename, url, poster_url, width, height, size_mb, is_cover, focal_y
     FROM assets
     WHERE category_slug = ${categorySlug} AND kind = ${kind} AND status = 'published'
     ORDER BY is_cover DESC, created_at ASC
@@ -86,21 +88,27 @@ export async function dbCategoryHasPhotography(categorySlug: string): Promise<bo
 }
 
 /** First published DB photo for the category, else the poster of its first published DB video. */
-export async function dbCategoryCover(categorySlug: string): Promise<string | undefined> {
+export async function dbCategoryCover(
+  categorySlug: string
+): Promise<{ url: string; focalY: number } | undefined> {
   const sql = getSql();
   const [photo] = await sql`
-    SELECT url FROM assets
+    SELECT url, focal_y FROM assets
     WHERE category_slug = ${categorySlug} AND kind = 'photo' AND status = 'published'
     ORDER BY is_cover DESC, created_at ASC LIMIT 1
   `;
-  if (photo) return (photo as { url: string }).url;
+  if (photo) {
+    const p = photo as { url: string; focal_y: number };
+    return { url: p.url, focalY: p.focal_y };
+  }
 
   const [video] = await sql`
-    SELECT poster_url FROM assets
+    SELECT poster_url, focal_y FROM assets
     WHERE category_slug = ${categorySlug} AND kind = 'video' AND status = 'published' AND poster_url IS NOT NULL
     ORDER BY is_cover DESC, created_at ASC LIMIT 1
   `;
-  return (video as { poster_url: string } | undefined)?.poster_url;
+  const v = video as { poster_url: string; focal_y: number } | undefined;
+  return v ? { url: v.poster_url, focalY: v.focal_y } : undefined;
 }
 
 export interface AdminAsset {
@@ -114,6 +122,7 @@ export interface AdminAsset {
   width?: number;
   height?: number;
   isCover: boolean;
+  focalY: number;
 }
 
 export interface AdminProject {
@@ -141,6 +150,7 @@ interface AdminAssetRow {
   width: number | null;
   height: number | null;
   is_cover: boolean;
+  focal_y: number;
 }
 
 function toAdminAsset(row: AdminAssetRow): AdminAsset {
@@ -155,6 +165,7 @@ function toAdminAsset(row: AdminAssetRow): AdminAsset {
     width: row.width ?? undefined,
     height: row.height ?? undefined,
     isCover: row.is_cover,
+    focalY: row.focal_y,
   };
 }
 
@@ -167,7 +178,7 @@ function toAdminAsset(row: AdminAssetRow): AdminAsset {
 export async function getAdminLibrary(): Promise<AdminCategoryLibrary[]> {
   const sql = getSql();
   const assetRows = (await sql`
-    SELECT id, category_slug, project_id, kind, status, filename, url, poster_url, width, height, is_cover
+    SELECT id, category_slug, project_id, kind, status, filename, url, poster_url, width, height, is_cover, focal_y
     FROM assets
     ORDER BY created_at ASC
   `) as AdminAssetRow[];
@@ -208,16 +219,16 @@ export async function getAdminLibrary(): Promise<AdminCategoryLibrary[]> {
 /** The category's explicitly admin-pinned thumbnail, if one exists — photo or video alike, and takes priority over the kind-priority default in getCategoryCover. */
 export async function getPinnedCover(
   categorySlug: string
-): Promise<{ kind: AssetKind; url: string; posterUrl?: string } | undefined> {
+): Promise<{ kind: AssetKind; url: string; posterUrl?: string; focalY: number } | undefined> {
   const sql = getSql();
   const [row] = await sql`
-    SELECT kind, url, poster_url FROM assets
+    SELECT kind, url, poster_url, focal_y FROM assets
     WHERE category_slug = ${categorySlug} AND is_cover AND status = 'published'
     LIMIT 1
   `;
   if (!row) return undefined;
-  const r = row as { kind: AssetKind; url: string; poster_url: string | null };
-  return { kind: r.kind, url: r.url, posterUrl: r.poster_url ?? undefined };
+  const r = row as { kind: AssetKind; url: string; poster_url: string | null; focal_y: number };
+  return { kind: r.kind, url: r.url, posterUrl: r.poster_url ?? undefined, focalY: r.focal_y };
 }
 
 /** Moves an asset to a different category — detaches it from its project (projects are scoped to one category) and clears any cover pin (a pin is scoped to its old category). */
@@ -237,6 +248,15 @@ export async function setAssetCover(assetId: number): Promise<void> {
   const categorySlug = (row as { category_slug: string }).category_slug;
   await sql`UPDATE assets SET is_cover = false WHERE category_slug = ${categorySlug}`;
   await sql`UPDATE assets SET is_cover = true WHERE id = ${assetId}`;
+}
+
+/** Sets an asset's vertical crop anchor (0–100, top–bottom) — how object-cover crops it when forced into a fixed-aspect card. */
+export async function setAssetFocalY(assetId: number, focalY: number): Promise<void> {
+  if (!Number.isInteger(focalY) || focalY < 0 || focalY > 100) {
+    throw new Error("focalY must be an integer between 0 and 100");
+  }
+  const sql = getSql();
+  await sql`UPDATE assets SET focal_y = ${focalY} WHERE id = ${assetId}`;
 }
 
 /** Finds or creates a project row for a client-supplied project label, returning its id. */

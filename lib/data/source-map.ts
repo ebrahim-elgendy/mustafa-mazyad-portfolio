@@ -44,6 +44,8 @@ export interface SourceAsset {
   title?: string;
   /** Admin-pinned as this category's thumbnail — bumped to the front of getLiveAssets. */
   isCover?: boolean;
+  /** Vertical crop anchor (0 = top, 50 = center, 100 = bottom) for when this asset is cropped via object-cover into a fixed-aspect card. Defaults to 50 (center) when unset. */
+  focalY?: number;
 }
 
 function pending(filename: string, kind: AssetKind, sizeMB: number | null = null): SourceAsset {
@@ -151,15 +153,17 @@ export async function categoryHasPhotography(categorySlug: string): Promise<bool
  * uploaded photo, else the poster frame of its first uploaded video (e.g.
  * fnb, which is video-only).
  */
-export async function getCategoryCover(categorySlug: string): Promise<string | undefined> {
+export async function getCategoryCover(
+  categorySlug: string
+): Promise<{ url: string; focalY: number } | undefined> {
   const pinned = await getPinnedCover(categorySlug);
   const pinnedImage = pinned && (pinned.kind === "photo" ? pinned.url : pinned.posterUrl);
-  if (pinnedImage) return pinnedImage;
+  if (pinnedImage) return { url: pinnedImage, focalY: pinned.focalY };
 
-  const photo = (await getLiveAssets(categorySlug, "photo"))[0]?.url;
-  if (photo) return photo;
-  const videoPoster = (await getLiveAssets(categorySlug, "video"))[0]?.posterUrl;
-  if (videoPoster) return videoPoster;
+  const firstPhoto = (await getLiveAssets(categorySlug, "photo"))[0];
+  if (firstPhoto?.url) return { url: firstPhoto.url, focalY: firstPhoto.focalY ?? 50 };
+  const firstVideo = (await getLiveAssets(categorySlug, "video"))[0];
+  if (firstVideo?.posterUrl) return { url: firstVideo.posterUrl, focalY: firstVideo.focalY ?? 50 };
   return dbCategoryCover(categorySlug);
 }
 

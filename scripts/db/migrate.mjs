@@ -50,4 +50,10 @@ await sql`
   ON assets (category_slug) WHERE is_cover
 `;
 
+// Vertical crop anchor (0 = top, 50 = center, 100 = bottom) as a percentage,
+// used as the CSS object-position when a cover is forced into a fixed-aspect
+// card via object-cover — lets the admin keep the subject in frame instead
+// of always cropping from the image's geometric center.
+await sql`ALTER TABLE assets ADD COLUMN IF NOT EXISTS focal_y SMALLINT NOT NULL DEFAULT 50 CHECK (focal_y BETWEEN 0 AND 100)`;
+
 console.log("Schema is up to date: projects, assets.");

@@ -30,6 +30,19 @@ const THEME_INIT_SCRIPT = `
   } catch (e) {}
 `;
 
+// See node_modules/next/dist/docs/01-app/02-guides/preventing-flash-before-hydration.md —
+// a bare <script> triggers a dev-mode React warning that this Next.js version treats as
+// a hard render error; the text/plain-on-client swap sidesteps it.
+function InlineScript({ html }: { html: string }) {
+  return (
+    <script
+      type={typeof window === "undefined" ? "text/javascript" : "text/plain"}
+      suppressHydrationWarning
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
+}
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -39,7 +52,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <head>
         {/* Runs before hydration so a returning light-mode visitor never sees a flash of dark. */}
-        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <InlineScript html={THEME_INIT_SCRIPT} />
       </head>
       <body className="min-h-full flex flex-col bg-bg text-ink">
         <Nav />

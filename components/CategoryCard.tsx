@@ -26,6 +26,8 @@ interface CategoryCardProps {
   className?: string;
   /** Real uploaded photo/poster for this category — shows a neutral "coming soon" state when absent. */
   cover?: string;
+  /** Vertical crop anchor (0–100, top–bottom) for how `cover` is cropped by object-cover into this card's fixed aspect. Defaults to 50 (center). */
+  coverFocalY?: number;
 }
 
 export default function CategoryCard({
@@ -33,6 +35,7 @@ export default function CategoryCard({
   variant = "standard",
   className = "",
   cover,
+  coverFocalY = 50,
 }: CategoryCardProps) {
   const [active, setActive] = useState(false);
   const reduceMotion = useReducedMotion();
@@ -49,6 +52,7 @@ export default function CategoryCard({
     filter: active
       ? "grayscale(0.02) contrast(1.05) brightness(1.03) saturate(1.35)"
       : undefined,
+    objectPosition: `50% ${coverFocalY}%`,
   };
 
   return (

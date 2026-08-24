@@ -4,12 +4,13 @@ import { NextResponse } from "next/server";
 import { del } from "@vercel/blob";
 import { ADMIN_SESSION_COOKIE, isValidSessionToken } from "@/lib/auth";
 import { getSql } from "@/lib/db";
-import { moveAssetToCategory, setAssetCover } from "@/lib/data/db-assets";
+import { moveAssetToCategory, setAssetCover, setAssetFocalY } from "@/lib/data/db-assets";
 import { CATEGORIES } from "@/lib/data/categories";
 
 interface UpdateAssetBody {
   categorySlug?: string;
   setCover?: boolean;
+  focalY?: number;
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -28,6 +29,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     await moveAssetToCategory(Number(id), data.categorySlug);
   } else if (data.setCover) {
     await setAssetCover(Number(id));
+  } else if (typeof data.focalY === "number") {
+    await setAssetFocalY(Number(id), data.focalY);
   } else {
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
   }

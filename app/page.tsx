@@ -8,7 +8,7 @@ export default async function Home() {
     await Promise.all(
       CATEGORIES.map(async (category) => [category.slug, await getCategoryCover(category.slug)])
     )
-  );
+  ) as Record<string, { url: string; focalY: number } | undefined>;
 
   return (
     <main className="flex-1">

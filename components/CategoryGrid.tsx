@@ -6,8 +6,8 @@ import { staggerContainer } from "@/lib/motion";
 import CategoryCard from "./CategoryCard";
 
 interface CategoryGridProps {
-  /** Real cover photo per category slug, once uploaded — falls back to curated placeholder art when absent. */
-  covers?: Partial<Record<string, string>>;
+  /** Real cover photo (+ vertical crop anchor) per category slug, once uploaded — falls back to curated placeholder art when absent. */
+  covers?: Partial<Record<string, { url: string; focalY: number } | undefined>>;
 }
 
 export default function CategoryGrid({ covers }: CategoryGridProps) {
@@ -33,7 +33,8 @@ export default function CategoryGrid({ covers }: CategoryGridProps) {
             key={category.slug}
             category={category}
             variant="wide"
-            cover={covers?.[category.slug]}
+            cover={covers?.[category.slug]?.url}
+            coverFocalY={covers?.[category.slug]?.focalY}
           />
         ))}
       </motion.div>
