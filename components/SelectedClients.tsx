@@ -5,20 +5,17 @@ import { fadeIn } from "@/lib/motion";
 
 interface Client {
   name: string;
-  /** Path under /public/clients — real logo, sourced from Wikimedia Commons
-   *  (clearly licensed for reuse). Omitted where no reliable free logo
-   *  could be found; those render as a styled text wordmark instead. */
+  /** Path under /public/clients — real logo, either sourced from Wikimedia
+   *  Commons (clearly licensed) or supplied directly by Mostafa. Omitted
+   *  where no usable logo exists yet; those render as a text wordmark. */
   logo?: string;
 }
 
 /**
- * Real clients — most pulled from Mostafa's own delivered project folders in
- * lib/data/source-map.ts (Corporate + Events) and the live production DB
- * (automotive projects, plus brand names spotted in uploaded filenames
- * across real-estate/corporate/content-creator). Excludes "Ducap Abu Dhabi",
- * the one project folder marked as having no delivered assets, and personal
- * names found in filenames (not brands). Worth a pass with Mostafa to
- * confirm every name/spelling before this is final.
+ * Real clients Mostafa has worked with — confirmed either from his own
+ * delivered project folders in lib/data/source-map.ts / the production DB,
+ * or by Mostafa directly supplying the logo file. Excludes "Ducap Abu
+ * Dhabi" (a project folder with no delivered assets).
  */
 const ROW_1: Client[] = [
   { name: "Al Dar", logo: "/clients/aldar.png" },
@@ -26,24 +23,25 @@ const ROW_1: Client[] = [
   { name: "UFC", logo: "/clients/ufc.svg" },
   { name: "Deepal", logo: "/clients/deepal.svg" },
   { name: "ADNOC", logo: "/clients/adnoc.svg" },
-  { name: "Al Tayer" },
-  { name: "Azizi" },
-  { name: "The Opus" },
-  { name: "Address" },
-  { name: "Dubai Tourism" },
+  { name: "Al Tayer", logo: "/clients/al-tayer.png" },
+  { name: "The Opus", logo: "/clients/the-opus.png" },
+  { name: "Dubai Tourism", logo: "/clients/dubai-tourism.png" },
+  { name: "JJ Chicken", logo: "/clients/jj-chicken.png" },
+  { name: "ADO", logo: "/clients/ado.png" },
 ];
 
 const ROW_2: Client[] = [
-  { name: "du" },
-  { name: "Al Wathba Hours Race" },
-  { name: "Rayad Bank" },
-  { name: "Turkish Embassy" },
+  { name: "du", logo: "/clients/du.png" },
+  { name: "Riyad Bank", logo: "/clients/riyad-bank.png" },
+  // Supplied logo is very low-contrast (pale pink on white) — pending a
+  // clearer version from Mostafa before switching this to the image.
   { name: "Xpanse" },
-  { name: "Dubai Land" },
-  { name: "Al Ain Finance" },
-  { name: "Tamouh" },
-  { name: "Sopranos" },
-  { name: "Nolus" },
+  { name: "Dubai Land", logo: "/clients/dubai-land.png" },
+  { name: "Al Ain Finance", logo: "/clients/al-ain-finance.png" },
+  { name: "Tamouh", logo: "/clients/tamouh.png" },
+  { name: "Frio", logo: "/clients/frio.png" },
+  { name: "Zoi", logo: "/clients/zoi.png" },
+  { name: "ZO Skin Centre", logo: "/clients/zo-skin-centre.png" },
 ];
 
 function LogoCard({ client }: { client: Client }) {
