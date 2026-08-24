@@ -1,5 +1,6 @@
 import Hero from "@/components/Hero";
 import SelectedClients from "@/components/SelectedClients";
+import FeaturedWork from "@/components/FeaturedWork";
 import CategoryGrid from "@/components/CategoryGrid";
 import { CATEGORIES } from "@/lib/data/categories";
 import { getCategoryCover } from "@/lib/data/source-map";
@@ -15,6 +16,7 @@ export default async function Home() {
     <main className="flex-1">
       <Hero />
       <SelectedClients />
+      <FeaturedWork />
       <CategoryGrid covers={covers} />
     </main>
   );
