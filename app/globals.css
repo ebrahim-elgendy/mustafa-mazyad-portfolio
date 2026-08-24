@@ -178,3 +178,37 @@ html {
 .text-pretty {
   text-wrap: pretty;
 }
+
+/*
+  Client-logo marquee (SelectedClients.tsx) — each row's track renders the
+  list twice back to back and slides exactly -50% so the loop point is
+  invisible. Pure CSS (not Framer Motion) so it keeps running smoothly
+  regardless of scroll/viewport state; the global prefers-reduced-motion
+  block above already freezes it for users who need that.
+*/
+@keyframes marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.marquee-track {
+  animation: marquee-left 36s linear infinite;
+}
+.marquee-track-reverse {
+  animation: marquee-right 36s linear infinite;
+}
+.marquee-row:hover .marquee-track,
+.marquee-row:hover .marquee-track-reverse {
+  animation-play-state: paused;
+}
