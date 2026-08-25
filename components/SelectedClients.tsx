@@ -55,7 +55,7 @@ function LogoCard({ client }: { client: Client }) {
         <img
           src={client.logo}
           alt={client.name}
-          className="max-h-7 w-auto object-contain opacity-60 grayscale transition-all duration-300 group-hover:opacity-100 group-hover:grayscale-0 sm:max-h-9"
+          className="max-h-7 w-auto object-contain transition-transform duration-300 group-hover:scale-105 sm:max-h-9"
         />
       ) : (
         <span className="select-none whitespace-nowrap font-display text-base italic text-black/45 transition-colors duration-300 group-hover:text-black/85 sm:text-lg">
