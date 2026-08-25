@@ -50,15 +50,15 @@ function LogoCard({ client }: { client: Client }) {
     // (several, like Aldar's, are solid black) — so this card stays a fixed
     // light surface rather than following the site's dark/light theme, same
     // as the reference design.
-    <div className="group mx-2 flex h-16 shrink-0 items-center justify-center rounded-xl border border-black/10 bg-white px-7 sm:mx-3 sm:h-20 sm:px-9">
+    <div className="group mx-2 flex h-20 w-40 shrink-0 items-center justify-center rounded-xl border border-black/10 bg-white px-4 sm:mx-3 sm:h-24 sm:w-48 sm:px-5">
       {client.logo ? (
         <img
           src={client.logo}
           alt={client.name}
-          className="max-h-7 w-auto object-contain transition-transform duration-300 group-hover:scale-105 sm:max-h-9"
+          className="h-full max-h-14 w-full object-contain transition-transform duration-300 group-hover:scale-105 sm:max-h-16"
         />
       ) : (
-        <span className="select-none whitespace-nowrap font-display text-base italic text-black/45 transition-colors duration-300 group-hover:text-black/85 sm:text-lg">
+        <span className="select-none whitespace-nowrap font-display text-lg italic text-black/45 transition-colors duration-300 group-hover:text-black/85 sm:text-xl">
           {client.name}
         </span>
       )}
